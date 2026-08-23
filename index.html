@@ -1,0 +1,3233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>LOADLINE — Progression Log</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#15140F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LOADLINE">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15140F;
+    --surface:#1E1D16;
+    --surface-2:#26241A;
+    --line:#33311F;
+    --olive:#6B7A4F;
+    --olive-dim:#4A5537;
+    --gold:#C9A24B;
+    --text:#F2EFE6;
+    --muted:#8B8878;
+    --down:#B0604F;
+    --up:#7E9A5A;
+    --run:#7A93A8;
+    --run-dim:#4C5E6C;
+    --food:#5B9A8B;
+    --food-dim:#3E6B60;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}
+  body{
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  header.app{
+    position:sticky; top:0; z-index:20;
+    background:var(--bg);
+    padding:18px 18px 10px;
+    border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .brand{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text);
+    display:flex; align-items:baseline; gap:8px;
+  }
+  .brand .dot{color:var(--gold);}
+  .brand-sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:2px;
+    letter-spacing:0.02em;
+  }
+  .backup-btn{
+    background:none; border:1px solid var(--line); color:var(--muted);
+    width:34px; height:34px; border-radius:50%; font-size:15px; cursor:pointer;
+    flex:0 0 auto; margin-top:2px;
+  }
+  .backup-btn.warn{border-color:var(--down); color:var(--down);}
+
+  .quick-save-bar{
+    padding:0 18px 12px;
+  }
+  .quick-save-btn{
+    width:100%; background:var(--surface); border:1.5px dashed var(--gold);
+    color:var(--gold); border-radius:8px; padding:11px;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px;
+    letter-spacing:0.02em; cursor:pointer;
+  }
+  .quick-save-btn:active{background:var(--surface-2);}
+  .quick-save-btn:disabled{opacity:0.6;}
+
+  .tabs{
+    display:flex; gap:8px; overflow-x:auto;
+    padding:14px 18px 4px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+
+  .program-switch{
+    display:flex; gap:8px; padding:14px 18px 0;
+  }
+  .program-btn{
+    flex:1; padding:11px; border-radius:8px; border:1px solid var(--line);
+    background:var(--surface); color:var(--muted); cursor:pointer;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:12.5px;
+    letter-spacing:0.02em; text-align:center; line-height:1.3;
+  }
+  .program-btn .p-sub{
+    display:block; font-family:'JetBrains Mono',monospace; font-weight:400;
+    font-size:9px; text-transform:uppercase; letter-spacing:0.04em; margin-top:2px; opacity:0.75;
+  }
+  .program-btn.active{
+    background:var(--olive-dim); border-color:var(--olive); color:var(--text);
+  }
+  .program-btn.active.p2{
+    background:#3D2A33; border-color:var(--p2, #C97A9E); color:var(--text);
+  }
+
+  .week-select-bar{
+    padding:12px 18px 0;
+  }
+  .week-select-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;
+  }
+  .week-chip-row{
+    display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px;
+  }
+  .week-chip-row::-webkit-scrollbar{display:none;}
+  .week-chip{
+    flex:0 0 auto; min-width:52px; padding:8px 6px; border-radius:6px;
+    border:1px solid var(--line); background:var(--surface); color:var(--muted);
+    font-family:'JetBrains Mono',monospace; font-size:11px; text-align:center; cursor:pointer;
+    line-height:1.3;
+  }
+  .week-chip .wk-phase{
+    display:block; font-size:8px; text-transform:uppercase; margin-top:2px; letter-spacing:0.03em;
+  }
+  .week-chip.active{
+    background:#3D2A33; border-color:#C97A9E; color:var(--text);
+  }
+  .week-chip.active .wk-phase{color:#C97A9E;}
+
+  .tab{
+    flex:0 0 auto;
+    font-family:'Oswald',sans-serif;
+    font-weight:500;
+    font-size:13px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:8px 14px;
+    border-radius:3px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--muted);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--olive-dim);
+    border-color:var(--olive);
+    color:var(--text);
+  }
+  .tab.special.active{
+    background:var(--run-dim);
+    border-color:var(--run);
+    color:var(--text);
+  }
+  .tab-sep{
+    flex:0 0 auto; width:1px; background:var(--line); align-self:stretch; margin:0 2px;
+  }
+
+  main{padding:14px 18px 100px;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 14px 12px;
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+  .card:active{background:var(--surface-2);}
+  .card-top{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+  }
+  .ex-name{
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    letter-spacing:0.01em;
+    line-height:1.25;
+  }
+  .ex-target{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
+    margin-top:3px;
+    line-height:1.5;
+  }
+  .ex-target .rest-chip{
+    color:var(--gold);
+  }
+  .ex-target .warmup-chip{
+    color:var(--run);
+  }
+  .ex-target .rir-chip{
+    color:var(--muted);
+  }
+  .ex-last{
+    text-align:right;
+    flex:0 0 auto;
+  }
+  .ex-last-load{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:17px;
+    color:var(--gold);
+  }
+  .ex-last-load.empty{color:var(--muted); font-weight:400; font-size:12px;}
+  .ex-trend{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    margin-top:2px;
+  }
+  .trend-up{color:var(--up);}
+  .trend-down{color:var(--down);}
+  .trend-flat{color:var(--muted);}
+
+  .spark{
+    margin-top:10px; height:28px; width:100%;
+    display:block;
+  }
+
+  .section-label{
+    font-family:'Oswald',sans-serif;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:18px 0 8px;
+  }
+
+  /* Detail overlay */
+  .overlay{
+    position:fixed; inset:0; background:var(--bg);
+    z-index:50;
+    display:flex; flex-direction:column;
+    transform:translateY(100%);
+    transition:transform 0.28s ease;
+  }
+  .overlay.open{transform:translateY(0);}
+  .overlay-header{
+    padding:16px 18px 12px;
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:12px;
+  }
+  .back-btn{
+    background:none; border:1px solid var(--line); color:var(--text);
+    width:36px; height:36px; border-radius:50%;
+    font-size:18px; cursor:pointer; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .overlay-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:18px;
+  }
+  .overlay-sub{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px;
+  }
+  .overlay-body{
+    flex:1; overflow-y:auto; padding:16px 18px 100px;
+  }
+
+  .rest-quickstart{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--surface); border:1px solid var(--olive);
+    color:var(--gold);
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    padding:8px 14px; border-radius:20px; cursor:pointer;
+    margin-bottom:10px; margin-right:8px;
+  }
+  .rest-quickstart:active{background:var(--surface-2);}
+  .warmup-quickstart{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--surface); border:1px solid var(--run);
+    color:var(--run);
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    padding:8px 14px; border-radius:20px; cursor:pointer;
+    margin-bottom:18px;
+  }
+  .warmup-quickstart:active{background:var(--surface-2);}
+  .quickstart-row{display:flex; flex-wrap:wrap;}
+  .p2-extra-info{margin-bottom:14px;}
+  .p2-note{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text);
+    line-height:1.5; margin-bottom:8px;
+  }
+  .p2-subs{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+    margin-bottom:8px;
+  }
+
+  .stat-row{
+    display:flex; gap:10px; margin-bottom:18px;
+  }
+  .stat{
+    flex:1; background:var(--surface); border:1px solid var(--line);
+    border-radius:6px; padding:10px 12px;
+  }
+  .stat-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .stat-value{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:20px; margin-top:2px;
+  }
+
+  .big-spark{
+    width:100%; height:70px; margin-bottom:20px;
+  }
+
+  .log-item{
+    border-bottom:1px solid var(--line);
+    padding:12px 0;
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .log-date{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+  }
+  .log-sets{
+    font-family:'JetBrains Mono',monospace; font-size:14px; margin-top:5px;
+  }
+  .log-set-line{
+    display:flex; gap:8px; align-items:baseline; margin-bottom:2px;
+  }
+  .log-set-line .set-tag{
+    color:var(--muted); font-size:11px; width:20px; flex:0 0 auto;
+  }
+  .log-set-line .set-val{color:var(--text); font-weight:600;}
+  .log-note{
+    font-family:'Inter',sans-serif; font-size:12px; color:var(--muted); margin-top:6px; font-style:italic;
+  }
+  .log-note .note-tag{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--gold); font-style:normal;
+    text-transform:uppercase; margin-right:4px;
+  }
+  .log-item-right{
+    display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:0 0 auto;
+  }
+  .log-volume{
+    font-family:'JetBrains Mono',monospace; font-size:11px; text-align:right; line-height:1.4;
+  }
+  .log-volume .vol-num{font-size:10px; color:var(--muted); display:block;}
+  .log-volume .vol-trend{font-weight:700;}
+  .log-del{
+    background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:4px 6px;
+  }
+  .log-del:active{color:var(--down);}
+
+  .fab{
+    position:fixed; left:18px; right:18px; bottom:18px;
+    background:var(--olive); color:var(--bg);
+    border:none; border-radius:6px;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:15px;
+    letter-spacing:0.04em; text-transform:uppercase;
+    padding:14px; cursor:pointer;
+    z-index:10;
+  }
+  .fab:active{background:var(--olive-dim); color:var(--text);}
+  .fab.run{background:var(--run);}
+  .fab.run:active{background:var(--run-dim); color:var(--text);}
+
+  /* Timer floating button */
+  .timer-fab{
+    position:fixed; right:18px; bottom:86px;
+    width:54px; height:54px; border-radius:50%;
+    background:var(--gold); color:var(--bg);
+    border:none; cursor:pointer; z-index:16;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.45);
+    flex-direction:column; line-height:1.1;
+  }
+  .timer-fab .ticon{font-size:18px;}
+  .timer-fab.running{background:var(--up); color:var(--bg);}
+
+  .timer-banner{
+    position:fixed; top:10px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:var(--bg); padding:8px 16px; border-radius:20px;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+    z-index:70; display:flex; gap:8px; align-items:center; cursor:pointer;
+    box-shadow:0 3px 10px rgba(0,0,0,0.45);
+  }
+  .timer-banner span:first-child{font-size:14px;}
+
+  .live-step-label{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:15px;
+    text-align:center; color:var(--gold); margin-bottom:16px;
+  }
+  .target-reps-badge{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-weight:500; font-size:11px;
+    color:var(--run); background:var(--surface); border:1px solid var(--run);
+    border-radius:12px; padding:3px 10px; margin-left:8px; vertical-align:middle;
+  }
+  .live-prev-hint{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--muted); margin-top:-10px; margin-bottom:14px;
+  }
+  .live-prev-hint span{color:var(--run); font-weight:700;}
+  .live-logged-so-far{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+    margin-bottom:14px;
+  }
+  .live-logged-so-far .lsf-item{
+    background:var(--surface); border:1px solid var(--olive); border-radius:14px;
+    padding:5px 12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+  }
+  .live-logged-so-far .lsf-item b{color:var(--up);}
+  .live-context{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; margin-bottom:16px;
+  }
+  .live-ctx-row{
+    display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center;
+  }
+  .live-ctx-item{
+    display:flex; align-items:center; gap:5px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+  }
+  .live-ctx-item .lbl{text-transform:uppercase; letter-spacing:0.04em;}
+  .live-ctx-item.rest .val{color:var(--gold); font-weight:700;}
+  .live-ctx-item.rir .val{color:var(--text); font-weight:700;}
+  .live-ctx-item.warmup .val{color:var(--run); font-weight:700;}
+  .live-ctx-timer-btn{
+    background:none; border:1px solid var(--olive); color:var(--gold);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 10px;
+    border-radius:14px; cursor:pointer; margin-left:auto;
+  }
+  .live-ctx-tech{
+    margin-top:8px; padding-top:8px; border-top:1px dashed var(--line);
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold);
+    display:flex; align-items:center; gap:6px;
+  }
+  .live-input-row{
+    display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:16px;
+  }
+  .live-input-col{flex:1; max-width:130px;}
+  .live-input-col label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.05em; display:block; text-align:center; margin-bottom:6px;
+  }
+  .live-input-col input{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:6px; padding:14px; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:22px; text-align:center;
+  }
+  .live-x{font-family:'JetBrains Mono',monospace; font-size:20px; color:var(--muted); margin-top:18px;}
+  .live-progress-dots{
+    display:flex; gap:6px; justify-content:center; margin-bottom:18px;
+  }
+  .live-dot{
+    width:9px; height:9px; border-radius:50%; background:var(--line);
+  }
+  .live-dot.done{background:var(--olive);}
+  .live-dot.current{background:var(--gold);}
+  .live-complete{
+    text-align:center; padding:10px 0 6px;
+  }
+  .live-complete-check{font-size:40px; margin-bottom:8px;}
+  .live-complete-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; margin-bottom:4px;
+  }
+  .live-complete-sets{
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--muted); margin-bottom:20px;
+  }
+  .edit-set-row{
+    display:flex; gap:8px; align-items:center; margin-bottom:8px;
+  }
+  .edit-set-row .set-idx{width:22px; flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);}
+  .edit-set-row input{
+    flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:5px;
+    padding:10px; color:var(--text); font-family:'JetBrains Mono',monospace; font-size:15px; text-align:center;
+  }
+  .edit-set-del{background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer; padding:4px 6px; flex:0 0 auto;}
+  .next-ex-btn{
+    width:100%; background:var(--gold); color:var(--bg); border:none;
+    border-radius:6px; padding:14px; font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:15px; letter-spacing:0.03em; text-transform:uppercase;
+    cursor:pointer; margin-bottom:10px;
+  }
+  .close-plain-btn{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    border-radius:6px; padding:14px; font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:14px; cursor:pointer;
+  }
+
+  .backup-warning{
+    background:var(--surface-2); border:1px solid var(--down); border-radius:8px;
+    padding:12px 14px; margin-bottom:16px;
+    font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text); line-height:1.5;
+  }
+  .backup-section{margin-bottom:20px;}
+  .backup-section-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px; margin-bottom:6px;
+  }
+  .backup-section-desc{
+    font-family:'Inter',sans-serif; font-size:12px; color:var(--muted); margin-bottom:10px; line-height:1.5;
+  }
+  .backup-action-btn{
+    width:100%; border:none; border-radius:6px; padding:14px;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:0.02em; cursor:pointer;
+  }
+  .backup-action-btn.export{background:var(--gold); color:var(--bg);}
+  .backup-action-btn.import{background:var(--surface-2); border:1px solid var(--olive); color:var(--text);}
+
+  /* Entry sheet */
+  .sheet-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    z-index:60; opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .sheet-backdrop.open{opacity:1; pointer-events:auto;}
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--surface); border-top:1px solid var(--line);
+    border-radius:14px 14px 0 0;
+    z-index:61;
+    transform:translateY(100%);
+    transition:transform 0.25s ease;
+    max-height:85vh; overflow-y:auto;
+    padding:18px 18px calc(24px + env(safe-area-inset-bottom));
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-handle{
+    width:36px; height:4px; background:var(--line); border-radius:2px;
+    margin:0 auto 14px;
+  }
+  .sheet-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:17px; margin-bottom:14px;
+    text-align:center;
+  }
+  .field-label{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.05em; margin-bottom:5px; display:block;
+  }
+  .field{margin-bottom:14px;}
+  input[type=date], input[type=text], input[type=number]{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:5px; padding:10px 12px; color:var(--text);
+    font-family:'Inter',sans-serif; font-size:15px;
+  }
+  .set-row{
+    display:flex; gap:10px; align-items:center; margin-bottom:8px;
+  }
+  .set-idx{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    width:18px; flex:0 0 auto;
+  }
+  .set-input{
+    flex:1; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:5px; padding:10px; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:16px; text-align:center;
+  }
+  .set-input::placeholder{color:var(--muted); font-family:'Inter',sans-serif; font-size:12px;}
+  .set-unit{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); width:34px; flex:0 0 auto;
+  }
+  .save-btn{
+    width:100%; background:var(--olive); color:var(--bg); border:none;
+    border-radius:6px; padding:14px; font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:15px; letter-spacing:0.04em; text-transform:uppercase;
+    cursor:pointer; margin-top:6px;
+  }
+  .save-btn:active{background:var(--olive-dim); color:var(--text);}
+  .save-btn.run{background:var(--run);}
+  .save-btn.run:active{background:var(--run-dim); color:var(--text);}
+  .empty-hint{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    text-align:center; padding:30px 10px;
+  }
+  .toast{
+    position:fixed; bottom:150px; left:50%; transform:translateX(-50%);
+    background:var(--gold); color:var(--bg); font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:13px; padding:9px 16px; border-radius:20px;
+    z-index:80; opacity:0; transition:opacity 0.2s ease; pointer-events:none;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1;}
+
+  .two-col{display:flex; gap:10px;}
+  .two-col .field{flex:1;}
+
+  /* Running */
+  .run-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; margin-bottom:10px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .run-date{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+  }
+  .run-main{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; margin-top:2px;
+  }
+  .run-sub{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--run); margin-top:2px;
+  }
+
+  /* Calendar */
+  .cal-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .cal-nav-btn{
+    background:var(--surface); border:1px solid var(--line); color:var(--text);
+    width:34px; height:34px; border-radius:50%; font-size:16px; cursor:pointer;
+  }
+  .cal-month-label{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; letter-spacing:0.03em;
+  }
+  .cal-grid{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:4px;
+  }
+  .cal-dow{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    text-align:center; padding-bottom:4px; text-transform:uppercase;
+  }
+  .cal-cell{
+    aspect-ratio:1; border-radius:5px; border:1px solid var(--line);
+    background:var(--surface); padding:4px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    cursor:pointer;
+  }
+  .cal-cell.empty{visibility:hidden;}
+  .cal-cell.today{border-color:var(--gold);}
+  .cal-daynum{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+  }
+  .cal-dots{display:flex; flex-wrap:wrap; gap:2px;}
+  .cal-dot{width:6px; height:6px; border-radius:50%;}
+  .cal-legend{
+    display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;
+  }
+  .cal-legend-item{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+  }
+  .cal-legend-dot{width:8px; height:8px; border-radius:50%;}
+
+  .cal-day-detail{
+    margin-top:18px; background:var(--surface); border:1px solid var(--line);
+    border-radius:6px; padding:14px;
+  }
+  .cal-day-detail-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px; margin-bottom:8px;
+  }
+  .cal-day-line{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-bottom:4px;
+  }
+
+  /* Timer sheet */
+  .timer-display{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:52px;
+    text-align:center; margin:6px 0 18px; letter-spacing:0.02em; color:var(--gold);
+  }
+  .timer-context{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px;
+    color:var(--muted); margin-bottom:16px; text-transform:uppercase;
+  }
+  .timer-presets{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:16px;
+  }
+  .timer-chip{
+    flex:0 0 auto; padding:8px 14px; border-radius:20px;
+    border:1px solid var(--line); background:var(--surface-2); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:13px; cursor:pointer;
+  }
+  .timer-chip.active{background:var(--olive-dim); border-color:var(--olive);}
+  .timer-adjust-row{
+    display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:18px;
+  }
+  .timer-adjust-btn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--text); font-size:20px; cursor:pointer;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .timer-controls{display:flex; gap:10px;}
+  .timer-btn{
+    flex:1; padding:14px; border-radius:6px; border:none;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:0.03em; text-transform:uppercase; cursor:pointer;
+  }
+  .timer-btn.start{background:var(--olive); color:var(--bg);}
+  .timer-btn.start.pause{background:var(--gold);}
+  .timer-btn.reset{background:var(--surface-2); color:var(--text); border:1px solid var(--line);}
+
+  /* Warm-up calculator */
+  .wu-suggest{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+    margin-top:-6px; margin-bottom:12px;
+  }
+  .wu-suggest button{
+    background:none; border:none; color:var(--run); text-decoration:underline;
+    font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer; padding:0; margin-left:4px;
+  }
+  .wu-chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+  .wu-chip{
+    flex:0 0 auto; padding:8px 14px; border-radius:20px;
+    border:1px solid var(--line); background:var(--surface-2); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer;
+  }
+  .wu-chip.active{background:var(--run-dim); border-color:var(--run);}
+  .wu-table{width:100%; border-collapse:collapse; margin-top:6px;}
+  .wu-table th{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.05em; text-align:left;
+    padding:6px 4px; border-bottom:1px solid var(--line);
+  }
+  .wu-table td{
+    font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--text);
+    padding:8px 4px; border-bottom:1px solid var(--line);
+  }
+  .wu-table td.wu-pct{color:var(--muted); font-size:12px;}
+  .wu-table td.wu-weight{color:var(--run); font-weight:700;}
+  .warmup-done-btn{
+    width:100%; background:var(--run); color:var(--bg); border:none;
+    border-radius:6px; padding:13px; margin-top:14px;
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:0.02em; cursor:pointer;
+  }
+  .warmup-done-btn:active{background:var(--run-dim); color:var(--text);}
+  .wu-empty-note{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    text-align:center; padding:16px;
+  }
+
+  /* Guideline reference */
+  .info-btn{
+    background:none; border:1px solid var(--line); color:var(--muted);
+    width:30px; height:30px; border-radius:50%; font-size:14px; cursor:pointer;
+    margin-left:auto; flex:0 0 auto;
+  }
+  .gl-table{width:100%; border-collapse:collapse; margin-bottom:16px;}
+  .gl-table th{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--bg);
+    background:var(--gold); text-transform:uppercase; letter-spacing:0.04em;
+    text-align:left; padding:8px 6px;
+  }
+  .gl-table td{
+    font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text);
+    padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top;
+  }
+  .gl-table tr:nth-child(even) td{background:var(--surface-2);}
+  .gl-label{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold); white-space:nowrap;}
+
+  /* Nutrition / calorie tracking */
+  .tab.special.food-active{
+    background:var(--food-dim); border-color:var(--food); color:var(--text);
+  }
+  .macro-row{display:flex; gap:8px; margin-bottom:10px;}
+  .macro-box{
+    flex:1; background:var(--surface); border:1px solid var(--line);
+    border-radius:6px; padding:10px 8px; text-align:center;
+  }
+  .macro-label{
+    font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .macro-val{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:16px; margin-top:3px;
+  }
+  .macro-target{
+    font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); margin-top:1px;
+  }
+  .macro-bar-track{
+    height:5px; background:var(--surface-2); border-radius:3px; margin-top:6px; overflow:hidden;
+  }
+  .macro-bar-fill{height:100%; border-radius:3px; background:var(--food);}
+  .macro-bar-fill.over{background:var(--down);}
+
+  .day-divider{
+    display:flex; justify-content:space-between; align-items:center;
+    margin:18px 0 8px; padding-bottom:6px; border-bottom:2px solid var(--olive);
+  }
+  .day-divider:first-child{margin-top:0;}
+  .day-divider-date{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px; color:var(--text);
+    letter-spacing:0.02em;
+  }
+  .day-divider.is-today .day-divider-date{color:var(--gold);}
+  .day-divider-total{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+  }
+  .meal-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; margin-bottom:10px;
+  }
+  .meal-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .meal-name{font-family:'Oswald',sans-serif; font-weight:600; font-size:15px;}
+  .meal-meta{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px;
+  }
+  .meal-kcal{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:16px; color:var(--food);
+    text-align:right;
+  }
+  .meal-macros{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:6px;
+  }
+  .meal-method{
+    display:inline-block; font-size:10px; padding:2px 8px; border-radius:10px;
+    border:1px solid var(--line); color:var(--muted); margin-top:6px;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  /* Mode toggle inside sheet */
+  .mode-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .mode-btn{
+    flex:1; padding:10px; border-radius:6px; border:1px solid var(--line);
+    background:var(--surface-2); color:var(--muted);
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px;
+    letter-spacing:0.02em; cursor:pointer; text-align:center;
+  }
+  .mode-btn.active{background:var(--food-dim); border-color:var(--food); color:var(--text);}
+
+  .ing-row{
+    border-bottom:1px solid var(--line);
+    padding-bottom:10px; margin-bottom:10px;
+  }
+  .ing-row-main{display:flex; gap:6px; align-items:center; margin-bottom:6px;}
+  .ing-row-main input[type=text]{flex:2;}
+  .ing-row-main input[type=number]{flex:1;}
+  .ing-unit{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:5px;
+    color:var(--text); font-family:'JetBrains Mono',monospace; font-size:12px;
+    padding:9px 4px; flex:0 0 54px;
+  }
+  .ing-manual-toggle{
+    background:none; border:none; color:var(--food);
+    font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer;
+    padding:2px 0; text-decoration:underline;
+  }
+  .ing-manual-fields{display:flex; gap:6px; margin-top:8px;}
+  .ing-manual-fields .field-mini{flex:1;}
+  .ing-manual-fields label{
+    font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted);
+    display:block; margin-bottom:2px; text-align:center;
+  }
+  .ing-manual-fields input{
+    width:100%; text-align:center; font-size:12px; padding:7px 2px;
+  }
+  .ing-del{
+    background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer;
+    padding:4px 6px; flex:0 0 auto;
+  }
+  .add-ing-btn{
+    background:var(--surface-2); border:1px dashed var(--line); color:var(--muted);
+    width:100%; padding:10px; border-radius:6px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; cursor:pointer; margin-bottom:14px;
+  }
+  .direct-save-btn{
+    width:100%; background:var(--olive); color:var(--bg); border:none;
+    border-radius:6px; padding:13px; font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:14px; letter-spacing:0.02em; cursor:pointer;
+    margin-bottom:6px;
+  }
+  .direct-save-btn:active{background:var(--olive-dim); color:var(--text);}
+  .direct-save-hint{
+    font-family:'Inter',sans-serif; font-size:11px; color:var(--muted);
+    text-align:center; margin-bottom:16px; line-height:1.4;
+  }
+
+  .photo-drop{
+    border:1px dashed var(--line); border-radius:8px; padding:20px;
+    text-align:center; cursor:pointer; margin-bottom:14px; background:var(--surface-2);
+  }
+  .photo-drop img{max-width:100%; max-height:220px; border-radius:6px; display:block; margin:0 auto;}
+  .photo-drop-label{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+  }
+
+  .calc-btn{
+    width:100%; background:var(--food); color:var(--bg); border:none;
+    border-radius:6px; padding:14px; font-family:'Oswald',sans-serif;
+    font-weight:600; font-size:15px; letter-spacing:0.04em; text-transform:uppercase;
+    cursor:pointer; margin-bottom:14px;
+  }
+  .calc-btn:active{background:var(--food-dim); color:var(--text);}
+  .calc-btn:disabled{opacity:0.5; cursor:default;}
+
+  .calc-result{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:6px;
+    padding:12px 14px; margin-bottom:14px;
+  }
+  .calc-result-total{
+    font-family:'Oswald',sans-serif; font-weight:700; font-size:22px; color:var(--food);
+    margin-bottom:6px;
+  }
+  .calc-item-row{
+    display:flex; justify-content:space-between;
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    padding:4px 0; border-bottom:1px solid var(--line);
+  }
+  .calc-item-row:last-child{border-bottom:none;}
+  .calc-disclaimer{
+    font-family:'Inter',sans-serif; font-size:11px; color:var(--muted); font-style:italic;
+    margin-top:6px;
+  }
+
+  .calc-item-edit{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:10px; margin-bottom:8px;
+  }
+  .calc-item-edit-top{display:flex; gap:8px; align-items:center; margin-bottom:8px;}
+  .calc-item-edit-top input[type=text]{flex:1; font-size:13px; padding:8px 10px;}
+  .calc-item-edit-nums{display:flex; gap:6px;}
+  .calc-item-edit-nums .field-mini{flex:1;}
+  .calc-item-edit-nums label{
+    font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted);
+    display:block; margin-bottom:2px; text-align:center;
+  }
+  .calc-item-edit-nums input{
+    width:100%; text-align:center; font-size:12px; padding:7px 2px;
+  }
+  .calc-item-edit-del{background:none; border:none; color:var(--muted); font-size:15px; cursor:pointer; flex:0 0 auto;}
+  .add-item-btn{
+    background:var(--surface-2); border:1px dashed var(--line); color:var(--muted);
+    width:100%; padding:10px; border-radius:6px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; cursor:pointer; margin-bottom:14px;
+  }
+
+  /* Favorites */
+  .fav-chip-row{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;
+  }
+  .fav-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--surface-2); border:1px solid var(--food); color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    padding:7px 10px 7px 12px; border-radius:20px; cursor:pointer;
+  }
+  .fav-chip .fav-chip-star{color:var(--gold); font-size:12px;}
+  .fav-chip .fav-chip-del{
+    background:none; border:none; color:var(--muted); font-size:13px; cursor:pointer; padding:0 2px;
+  }
+  .ing-fav-btn{
+    background:none; border:none; color:var(--muted); font-size:17px; cursor:pointer;
+    padding:4px 4px; flex:0 0 auto;
+  }
+  .ing-fav-btn.starred{color:var(--gold);}
+  .meal-star-btn{
+    background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer;
+    padding:0 0 0 8px; flex:0 0 auto;
+  }
+  .meal-star-btn.starred{color:var(--gold);}
+    font-family:'Inter',sans-serif; font-size:11px; color:var(--muted); font-style:italic;
+    margin-top:6px;
+  }
+  .spinner{
+    width:18px; height:18px; border:2px solid rgba(255,255,255,0.3);
+    border-top-color:var(--bg); border-radius:50%;
+    display:inline-block; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div>
+    <div class="brand"><span class="dot">●</span>LOADLINE</div>
+    <div class="brand-sub">PROGRESSION LOG — LOCAL STORAGE EDITION</div>
+  </div>
+  <button class="backup-btn" id="backupBtn" title="สำรอง/กู้คืนข้อมูล">⇅</button>
+</header>
+
+<div class="program-switch" id="programSwitch"></div>
+<div class="week-select-bar" id="weekSelectBar" style="display:none;"></div>
+<div class="tabs" id="tabs"></div>
+
+<div class="quick-save-bar">
+  <button class="quick-save-btn" id="quickSaveBtn">💾 บันทึกข้อมูลสำรองตอนนี้</button>
+</div>
+
+<main id="main"></main>
+
+<div class="timer-banner" id="timerBanner" style="display:none;">
+  <span>⏱</span><span id="timerBannerLabel"></span><span id="timerBannerTime"></span>
+</div>
+
+<button class="timer-fab" id="timerFabBtn"><span class="ticon">⏱</span><span id="timerFabLabel">พัก</span></button>
+
+<div class="sheet-backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheetTitle">บันทึกเซ็ต</div>
+  <div id="entrySheetBody"></div>
+</div>
+
+<div class="sheet-backdrop" id="runBackdrop"></div>
+<div class="sheet" id="runSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">บันทึกการวิ่ง</div>
+  <div class="field">
+    <span class="field-label">วันที่</span>
+    <input type="date" id="runDate">
+  </div>
+  <div class="two-col">
+    <div class="field">
+      <span class="field-label">ระยะทาง (กม.)</span>
+      <input type="number" inputmode="decimal" id="runDistance" placeholder="5.0">
+    </div>
+    <div class="field">
+      <span class="field-label">เวลา (นาที)</span>
+      <input type="number" inputmode="decimal" id="runDuration" placeholder="30">
+    </div>
+  </div>
+  <div class="field">
+    <span class="field-label">Avg HR (ไม่บังคับ)</span>
+    <input type="number" inputmode="numeric" id="runHr" placeholder="เช่น 145">
+  </div>
+  <div class="field">
+    <span class="field-label">โน้ต (ไม่บังคับ)</span>
+    <input type="text" id="runNote" placeholder="เช่น Zone 2, รู้สึกเบา">
+  </div>
+  <button class="save-btn run" id="saveRunBtn">บันทึก</button>
+</div>
+
+<div class="sheet-backdrop" id="timerBackdrop"></div>
+<div class="sheet" id="timerSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">ตั้งเวลาพัก</div>
+  <div class="timer-context" id="timerContext">ตั้งเวลาเอง</div>
+  <div class="timer-display" id="timerDisplay">01:30</div>
+  <div class="timer-presets" id="timerPresets"></div>
+  <div class="timer-adjust-row">
+    <button class="timer-adjust-btn" id="timerMinus">−15s</button>
+    <button class="timer-adjust-btn" id="timerPlus">+15s</button>
+  </div>
+  <div class="timer-controls">
+    <button class="timer-btn reset" id="timerReset">รีเซ็ต</button>
+    <button class="timer-btn start" id="timerStart">เริ่ม</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="wuBackdrop"></div>
+<div class="sheet" id="wuSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="wuTitle">คำนวณน้ำหนักวอร์มอัพ</div>
+  <div class="field">
+    <span class="field-label">น้ำหนักที่จะเล่นจริง (Working Weight)</span>
+    <input type="number" inputmode="decimal" id="wuWeight" placeholder="กรอกน้ำหนัก">
+  </div>
+  <div class="wu-suggest" id="wuSuggest"></div>
+  <span class="field-label">จำนวนเซ็ตวอร์มอัพ</span>
+  <div class="wu-chip-row" id="wuChips"></div>
+  <div id="wuResult"></div>
+</div>
+
+<div class="sheet-backdrop" id="glBackdrop"></div>
+<div class="sheet" id="glSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">แนวทางวอร์มอัพ (Exercise-Specific Warm-up)</div>
+  <table class="gl-table">
+    <tr><th>จำนวนเซ็ต</th><th>โปรโตคอล</th></tr>
+    <tr><td class="gl-label">1 เซ็ต</td><td>~60% ของน้ำหนักที่จะเล่นจริง × 6-10 ครั้ง (หรือจนรู้สึกตัวคล่อง พร้อมยก)</td></tr>
+    <tr><td class="gl-label">2 เซ็ต</td><td>เซ็ต 1: ~50% × 6-10 ครั้ง<br>เซ็ต 2: ~70% × 4-6 ครั้ง</td></tr>
+    <tr><td class="gl-label">3 เซ็ต</td><td>เซ็ต 1: ~45% × 6-10 ครั้ง<br>เซ็ต 2: ~65% × 4-6 ครั้ง<br>เซ็ต 3: ~85% × 3-4 ครั้ง</td></tr>
+    <tr><td class="gl-label">4 เซ็ต</td><td>เซ็ต 1: ~45% × 6-10 ครั้ง<br>เซ็ต 2: ~60% × 4-6 ครั้ง<br>เซ็ต 3: ~75% × 3-5 ครั้ง<br>เซ็ต 4: ~85% × 2-4 ครั้ง</td></tr>
+  </table>
+  <div class="wu-suggest">โปรแกรมจะบอกจำนวนเซ็ตวอร์มอัพที่แนะนำไว้ในแต่ละท่า (เช่น "WARM-UP 1-2") ใช้เปอร์เซ็นต์ข้างต้นจากน้ำหนักที่วางแผนจะเล่นจริงในเซ็ตทำงาน (working set)</div>
+</div>
+
+<div class="sheet-backdrop" id="backupBackdrop"></div>
+<div class="sheet" id="backupSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">สำรอง / กู้คืนข้อมูล</div>
+  <div class="backup-warning">💾 เวอร์ชันนี้เก็บข้อมูลไว้ใน<b>เบราว์เซอร์เครื่องนี้เท่านั้น</b> (localStorage) — เสถียรกว่าเดิมมาก แต่ <b>ไม่ sync ข้ามอุปกรณ์อัตโนมัติ</b> และถ้าล้างข้อมูลเบราว์เซอร์/เปลี่ยนเครื่อง ข้อมูลจะหาย ใช้ Export/Import เพื่อย้ายข้อมูลข้ามอุปกรณ์เอง<br><br>🤖 ฟีเจอร์คำนวณแคลด้วย AI (ทั้งจากรูปถ่ายและชื่อวัตถุดิบ) <b>อาจใช้งานไม่ได้</b> เมื่อเปิดไฟล์นอกเว็บ Claude.ai — แต่การกรอกสารอาหารเองจากฉลาก (manual) ยังใช้งานได้ปกติทุกฟีเจอร์</div>
+  <div class="backup-section">
+    <div class="backup-section-title">📤 Export (ส่งออกข้อมูลทั้งหมด)</div>
+    <div class="backup-section-desc">ดาวน์โหลดไฟล์ .json รวมข้อมูลเซ็ตที่เล่น, การวิ่ง, มื้ออาหาร และรายการโปรดทั้งหมด</div>
+    <button class="backup-action-btn export" id="exportDataBtn">ดาวน์โหลดไฟล์สำรอง</button>
+  </div>
+  <div class="backup-section">
+    <div class="backup-section-title">📥 Import (นำเข้าข้อมูล)</div>
+    <div class="backup-section-desc">เลือกไฟล์ .json ที่เคย Export ไว้ เพื่อกู้คืนข้อมูลกลับเข้าเครื่องมือ (จะรวมกับ/แทนที่ข้อมูลปัจจุบันตาม key เดียวกัน)</div>
+    <input type="file" accept="application/json,.json" id="importFileInput" style="display:none;">
+    <button class="backup-action-btn import" id="importDataBtn">เลือกไฟล์กู้คืน</button>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="foodBackdrop"></div>
+<div class="sheet" id="foodSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">บันทึกมื้ออาหาร</div>
+  <div id="favMealChipsWrap"></div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeHomeBtn">🏠 ทำกินเอง</button>
+    <button class="mode-btn" id="modePhotoBtn">📷 กินนอกบ้าน</button>
+  </div>
+  <div class="field">
+    <span class="field-label">วันที่</span>
+    <input type="date" id="foodDate">
+  </div>
+  <div class="field">
+    <span class="field-label">ชื่อมื้อ (ไม่บังคับ)</span>
+    <input type="text" id="foodLabel" placeholder="เช่น มื้อเที่ยง, หลังเทรน">
+  </div>
+
+  <div id="homeModeBlock">
+    <span class="field-label">วัตถุดิบ + น้ำหนัก (กรัม ถ้าชั่งได้ — ถ้าไม่รู้เว้นว่างไว้ ระบบจะประมาณให้)</span>
+    <div id="favIngChipsWrap"></div>
+    <div id="ingContainer"></div>
+    <button class="add-ing-btn" id="addIngBtn">+ เพิ่มวัตถุดิบ</button>
+    <button class="direct-save-btn" id="directSaveBtn">💾 บันทึกเลย (กรอกสารอาหารจากฉลากครบทุกอย่างแล้ว)</button>
+    <div class="direct-save-hint">ใช้ปุ่มนี้ได้เมื่อกรอก KCAL/P/C/F ของทุกวัตถุดิบครบแล้ว (จากฉลาก) — บันทึกทันทีไม่ต้องรอคำนวณ</div>
+  </div>
+
+  <div id="photoModeBlock" style="display:none;">
+    <span class="field-label">ถ่ายรูปอาหาร (ไม่บังคับ)</span>
+    <input type="file" accept="image/*" capture="environment" id="foodPhotoInput" style="display:none;">
+    <div class="photo-drop" id="photoDropZone">
+      <div class="photo-drop-label" id="photoDropLabel">แตะเพื่อถ่ายรูป หรือเลือกรูปจากเครื่อง</div>
+    </div>
+    <div class="field">
+      <span class="field-label">หรือพิมพ์ชื่อเมนู (ถ้าไม่มีรูปก็พิมพ์ชื่อได้เลย)</span>
+      <input type="text" id="foodDishName" placeholder="เช่น ผัดกะเพราหมูสับไข่ดาว">
+    </div>
+    <div class="field">
+      <span class="field-label">รายละเอียดเพิ่มเติม (ไม่บังคับ)</span>
+      <input type="text" id="foodExtraNote" placeholder="เช่น ข้าวเยอะ, น้ำมันเยอะ, ไม่ใส่ไข่">
+    </div>
+    <div class="direct-save-hint">โหมดนี้ต้องใช้ AI ประเมิน — อาจใช้ไม่ได้เมื่อเปิดไฟล์นอกเว็บ Claude.ai</div>
+  </div>
+
+  <button class="calc-btn" id="calcCalBtn">คำนวณแคล (ใช้ AI ประเมินส่วนที่ไม่ทราบ)</button>
+  <div id="calcResultWrap"></div>
+  <button class="save-btn" id="saveFoodBtn" style="display:none; background:var(--food);">บันทึกมื้อนี้</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {
+  "Full Body": [
+    {n:"Lying Leg Curl", sets:2, reps:"6-8", tech:"Lengthened Partials", rest:"1-2 min", warmup:"1-2", rir:"0 / 0"},
+    {n:"Squat (Your Choice)", sets:2, reps:"6-8", tech:"N/A", rest:"3-5 min", warmup:"2-4", rir:"1 / 0"},
+    {n:"Barbell Incline Press", sets:2, reps:"6-8", tech:"N/A", rest:"3-5 min", warmup:"2-4", rir:"1 / 0"},
+    {n:"Incline DB Y-Raise", sets:1, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / N/A"},
+    {n:"Pull-Up (Wide Grip)", sets:2, reps:"6-8", tech:"Lengthened Partials", rest:"2-3 min", warmup:"1-2", rir:"1 / 0"},
+    {n:"Standing Calf Raise", sets:1, reps:"6-8", tech:"Lengthened Partials", rest:"1-2 min", warmup:"0-1", rir:"0 / N/A"},
+  ],
+  "Upper": [
+    {n:"Close-Grip Lat Pulldown", sets:2, reps:"8-10", tech:"Lengthened Partials", rest:"2-3 min", warmup:"2-3", rir:"1 / 0"},
+    {n:"Chest-Supported T-Bar Row", sets:2, reps:"8-10", tech:"Two Drop Sets", rest:"2-3 min", warmup:"2-3", rir:"1 / 0"},
+    {n:"Machine Shrug", sets:1, reps:"6-8", tech:"N/A", rest:"1-2 min", warmup:"1-2", rir:"0 / N/A"},
+    {n:"Machine Chest Press", sets:2, reps:"8-10", tech:"Weighted Static Hold", rest:"3-5 min", warmup:"2-4", rir:"1 / 0"},
+    {n:"High-Cable Lateral Raise", sets:2, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"1-Arm Reverse Pec Deck", sets:1, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / N/A"},
+    {n:"Cable Crunch", sets:2, reps:"6-8", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+  ],
+  "Lower": [
+    {n:"Leg Extension", sets:2, reps:"8-10", tech:"Lengthened Partials", rest:"1-2 min", warmup:"1-2", rir:"0 / 0"},
+    {n:"Barbell RDL", sets:2, reps:"6-8", tech:"N/A", rest:"2-3 min", warmup:"2-3", rir:"2 / 1"},
+    {n:"Machine Hip Thrust", sets:2, reps:"6-8", tech:"N/A", rest:"2-3 min", warmup:"2-4", rir:"1 / 0"},
+    {n:"Leg Press", sets:1, reps:"6-8", tech:"N/A", rest:"2-3 min", warmup:"2-4", rir:"0 / N/A"},
+    {n:"Standing Calf Raise", sets:2, reps:"8-10", tech:"Lengthened Partials", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+  ],
+  "Arms/Delts": [
+    {n:"Bayesian Cable Curl", sets:2, reps:"6-8", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"Overhead Cable Triceps Extension", sets:2, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"Modified Zottman Curl", sets:1, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / N/A"},
+    {n:"Cable Triceps Kickback", sets:2, reps:"8-10", tech:"Two Drop Sets", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"DB Wrist Curl", sets:2, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"DB Wrist Extension", sets:2, reps:"8-10", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"Alternating DB Curl", sets:1, reps:"6-8", tech:"Two Drop Sets", rest:"1-2 min", warmup:"0-1", rir:"0 / N/A"},
+    {n:"Machine Lateral Raise", sets:2, reps:"8-10", tech:"Myo-reps", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+    {n:"Dead Hang (optional)", sets:2, reps:"N/A", tech:"N/A", rest:"1-2 min", warmup:"0-1", rir:"0 / 0"},
+  ],
+};
+
+const PROGRAM2_DATA = {"Upper":[{"n":"Machine Chest Press","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"DB Bench Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"Machine Chest Press (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"DB Bench Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Machine Lat Pullover","sets":1,"reps":"8-10","warmup":"1-2","rest":"1-2 min","sub1":"DB Lat Pullover","sub2":"Cable Lat Pullover","note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Machine Lat Pullover (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"DB Lat Pullover","sub2":"Cable Lat Pullover","note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Pec Deck","sets":2,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"DB Flye","sub2":"Cable Flye","note":"Pause for 1 second at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}}},{"n":"Chest-Supported T-Bar Row","sets":2,"reps":"6-8","warmup":"1-2","rest":"2-3 min","sub1":"Chest-Supported Machine Row","sub2":"Chest-Supported DB Row","note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}}},{"n":"Incline DB Y-Raise","sets":3,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Cable Y-Raise","sub2":"Machine Lateral Raise","note":"Use a 30° incline bench (back against the bench) and lift the weight up and out in a Y shape.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"N/A","rir":"0 / 0 / 0"},"9":{"tech":"N/A","rir":"0 / 0 / 0"},"10":{"tech":"N/A","rir":"0 / 0 / 0"},"11":{"tech":"N/A","rir":"0 / 0 / 0"},"12":{"tech":"N/A","rir":"0 / 0 / 0"}}}],"Lower":[{"n":"Seated Leg Curl","sets":3,"reps":"6-8","warmup":"1-2","rest":"1-2 min","sub1":"Lying Leg Curl","sub2":"Nordic Ham Curl","note":"Lean forward over the machine to get a maximum stretch in your hamstrings.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"}}},{"n":"Hack Squat","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-4 min","sub1":"Smith Machine Squat","sub2":"Leg Press","note":"Use a controlled negative (don't free fall) and then explode on the positive.","weeks":{"1":{"tech":"N/A","rir":"2 / 3 / -"},"2":{"tech":"N/A","rir":"1 / 2 / -"},"3":{"tech":"N/A","rir":"1 / 2 / -"},"4":{"tech":"N/A","rir":"1 / 2 / -"},"5":{"tech":"N/A","rir":"0 / 2 / -"},"6":{"tech":"N/A","rir":"0 / 2 / -"},"7":{"tech":"N/A","rir":"2 / 3 / -"},"8":{"tech":"N/A","rir":"1 / 2 / -"},"9":{"tech":"N/A","rir":"1 / 2 / -"},"10":{"tech":"N/A","rir":"1 / 2 / -"},"11":{"tech":"N/A","rir":"0 / 2 / -"},"12":{"tech":"N/A","rir":"0 / 2 / -"}}},{"n":"Leg Extension","sets":2,"reps":"6-8","warmup":"0-1","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"Leg Extension (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"DB Walking Lunge","sets":1,"reps":"10 per leg","warmup":"0-1","rest":"1-2 min","sub1":"Smith Machine Split Squat","sub2":"DB Reverse Lunge","note":"Take medium strides. Minimize contribution from the back leg","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Standing Calf Raise","sets":3,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Donkey Calf Raise","sub2":"Leg Press Calf Press","note":"1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"9":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"10":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"11":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"12":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"}}},{"n":"Glute Kickback","sets":1,"reps":"30","warmup":"0-1","rest":"1-2 min","sub1":"45° Hyperextension","sub2":"Cable Pull-Through","note":"Perform Glute Kickbacks if you want to focus on your glutes. Perform 45° Hyperextension if you want to focus more on your lower back and hamstrings.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}}],"Push":[{"n":"Machine Shoulder Press","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-3 min","sub1":"Seated DB Shoulder Press","sub2":"Seated Smith Machine Shoulder Press","note":"Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 1 / -"},"3":{"tech":"N/A","rir":"0 / 1 / -"},"4":{"tech":"N/A","rir":"0 / 1 / -"},"5":{"tech":"N/A","rir":"0 / 1 / -"},"6":{"tech":"N/A","rir":"0 / 1 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"}}},{"n":"DB Bench Press","sets":1,"reps":"10","warmup":"2-3","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"Machine Chest Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"DB Bench Press (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"Machine Chest Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Single-Leg Leg Extension","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Machine Lateral Raise","sets":1,"reps":"10","warmup":"0-1","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Machine Lateral Raise (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Cable Flye","sets":2,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Pec Deck","sub2":"DB Flye","note":"Focus on feeling a deep stretch in your pecs at the bottom of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"}}}],"Pull":[{"n":"Pull-Up (Wide Grip)","sets":3,"reps":"4-6","warmup":"1-2","rest":"2-3 min","sub1":"Lat Pulldown (Wide Grip)","sub2":"1-Arm Cable Pulldown","note":"Slow 2-3 second negative. Feel your lats pulling apart on the way down.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / 2"},"2":{"tech":"N/A","rir":"0 / 1 / 1"},"3":{"tech":"N/A","rir":"0 / 1 / 1"},"4":{"tech":"N/A","rir":"0 / 1 / 1"},"5":{"tech":"N/A","rir":"0 / 1 / 1"},"6":{"tech":"N/A","rir":"0 / 1 / 1"},"7":{"tech":"N/A","rir":"1 / 2 / 2"},"8":{"tech":"N/A","rir":"0 / 1 / 1"},"9":{"tech":"N/A","rir":"0 / 1 / 1"},"10":{"tech":"N/A","rir":"0 / 1 / 1"},"11":{"tech":"N/A","rir":"0 / 1 / 1"},"12":{"tech":"N/A","rir":"0 / 1 / 1"}}},{"n":"Stiff-Leg Deadlift","sets":2,"reps":"6-8","warmup":"2-3","rest":"2-3 min","sub1":"DB RDL","sub2":"Barbell RDL","note":"Keep your back flat and allow just a slight bend in your hamstrings.","weeks":{"1":{"tech":"N/A","rir":"2 / 3 / -"},"2":{"tech":"N/A","rir":"1 / 2 / -"},"3":{"tech":"N/A","rir":"1 / 2 / -"},"4":{"tech":"N/A","rir":"1 / 2 / -"},"5":{"tech":"N/A","rir":"1 / 2 / -"},"6":{"tech":"N/A","rir":"1 / 2 / -"},"7":{"tech":"N/A","rir":"2 / 3 / -"},"8":{"tech":"N/A","rir":"1 / 2 / -"},"9":{"tech":"N/A","rir":"1 / 2 / -"},"10":{"tech":"N/A","rir":"1 / 2 / -"},"11":{"tech":"N/A","rir":"1 / 2 / -"},"12":{"tech":"N/A","rir":"1 / 2 / -"}}},{"n":"Close-Grip Lat Pulldown","sets":1,"reps":"10","warmup":"1-2","rest":"2-3 min","sub1":"Close-Grip Pull-Up","sub2":"Close-Grip Seated Cable Row","note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Close-Grip Lat Pulldown (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Close-Grip Pull-Up","sub2":"Close-Grip Seated Cable Row","note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Chest-Supported Machine Row","sets":2,"reps":"4-6","warmup":"1-2","rest":"2-3 min","sub1":"Smith Machine Row","sub2":"DB Row","note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"1 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}}},{"n":"1-Arm Reverse Pec Deck","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"Lying Reverse DB Flye","sub2":"Reverse Cable Crossover","note":"Sweep the weight out to create the largest semi-circle possible with your arm.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"1-Arm Reverse Pec Deck (Match Set)","sets":1,"reps":"10","warmup":"0","rest":"1-2 min","sub1":"Lying Reverse DB Flye","sub2":"Reverse Cable Crossover","note":"Sweep the weight out to create the largest semi-circle possible with your arm.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Cable Crunch","sets":2,"reps":"6-8","warmup":"0-1","rest":"1-2 min","sub1":"Weighted Crunch","sub2":"Machine Crunch","note":"Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"}}}],"Arms":[{"n":"S1: EZ-Bar Cheat Curl","sets":2,"reps":"4-6","warmup":"1","rest":"N/A","sub1":"DB Cheat Curl","sub2":"DB Curl","note":"Use some momentum to get the weight up, but be sure to control the weight on the way down!","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"S1: EZ-Bar Skull Crusher","sets":2,"reps":"6-8","warmup":"1","rest":"30-60 sec","sub1":"DB Skull Crusher","sub2":"Overhead Cable Triceps Extension","note":"Feel a deep stretch on the triceps throughout the entire negative. Pause for 1 second in the stretch part of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"S2: Preacher Hammer Curl","sets":2,"reps":"6-8","warmup":"0-1","rest":"N/A","sub1":"DB Preacher Curl","sub2":"DB Hammer Curl","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}}},{"n":"S2: Triceps Pressdown","sets":2,"reps":"4-6","warmup":"0-1","rest":"30-60 sec","sub1":"Cable Triceps Kickback","sub2":"DB Triceps Kickback","note":"You can use a rope or bar attachment for these, whichever you find more comfortable.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}}},{"n":"S3: DB Wrist Curl","sets":2,"reps":"10-12","warmup":"0-1","rest":"N/A","sub1":"Cable Wrist Curl","sub2":"-","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"S3: DB Wrist Extension","sets":2,"reps":"10-12","warmup":"0-1","rest":"30-60 sec","sub1":"Cable Wrist Extension","sub2":"-","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}}},{"n":"Single-Arm Machine Lateral Raise","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}},{"n":"Single-Arm Machine Lateral Raise (Match Set)","sets":1,"reps":"10","warmup":"0","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}}}]};
+
+const WEEK_META = {"1":{"label":"Week 1","phase":"Intro Week","block":1},"2":{"label":"Week 2","phase":null,"block":1},"3":{"label":"Week 3","phase":null,"block":1},"4":{"label":"Week 4","phase":null,"block":1},"5":{"label":"Week 5","phase":null,"block":1},"6":{"label":"Week 6","phase":null,"block":1},"7":{"label":"Week 7","phase":"Deload Week","block":2},"8":{"label":"Week 8","phase":null,"block":2},"9":{"label":"Week 9","phase":null,"block":2},"10":{"label":"Week 10","phase":null,"block":2},"11":{"label":"Week 11","phase":null,"block":2},"12":{"label":"Week 12","phase":null,"block":2}};
+
+// Exercise-specific warm-up protocol (% of planned working weight)
+const WARMUP_PROTOCOL = {
+  1: [{pct:60, reps:"6-10"}],
+  2: [{pct:50, reps:"6-10"}, {pct:70, reps:"4-6"}],
+  3: [{pct:45, reps:"6-10"}, {pct:65, reps:"4-6"}, {pct:85, reps:"3-4"}],
+  4: [{pct:45, reps:"6-10"}, {pct:60, reps:"4-6"}, {pct:75, reps:"3-5"}, {pct:85, reps:"2-4"}],
+};
+
+function parseRange(str){
+  const m = str.match(/(\d+)\s*-\s*(\d+)/);
+  if(m) return {min:parseInt(m[1],10), max:parseInt(m[2],10)};
+  const single = str.match(/(\d+)/);
+  const v = single ? parseInt(single[1],10) : 0;
+  return {min:v, max:v};
+}
+
+const CAT_COLORS = {
+  "Full Body": "#C9A24B",
+  "Upper": "#7E9A5A",
+  "Lower": "#B0604F",
+  "Arms/Delts": "#8E7FB8",
+};
+const RUN_COLOR = "#7A93A8";
+const P2_COLOR = "#C97A9E";
+
+function slug(cat, name){
+  return (cat + "__" + name).toLowerCase().replace(/[^a-z0-9]+/g,"-");
+}
+
+function kcalFromMacros(protein, carb, fat){
+  const p = parseFloat(protein)||0, c = parseFloat(carb)||0, f = parseFloat(fat)||0;
+  return Math.round(p*4 + c*4 + f*9);
+}
+
+let currentView = { mode:'category', cat: Object.keys(DATA)[0] };
+let currentProgram = 'p1'; // 'p1' | 'p2'
+let currentWeek = 1; // 1-12, only relevant for p2
+let cache = {};
+let activeExercise = null;
+let calState = { year: new Date().getFullYear(), month: new Date().getMonth(), selectedDate: null };
+
+function activeCatData(){
+  return currentProgram === 'p1' ? DATA : PROGRAM2_DATA;
+}
+
+function storageId(program, cat, name){
+  const s = slug(cat, name);
+  return program === 'p1' ? ('entries:' + s) : ('entries:p2:' + s);
+}
+
+function exMeta(program, ex, week){
+  if(program === 'p1'){
+    return {
+      tech: ex.tech, rir: ex.rir, rest: ex.rest, warmup: ex.warmup,
+      sets: ex.sets, reps: ex.reps, sub1: null, sub2: null, note: null,
+    };
+  }
+  const wk = ex.weeks[String(week)];
+  return {
+    tech: wk.tech, rir: wk.rir, rest: ex.rest, warmup: ex.warmup,
+    sets: ex.sets, reps: ex.reps, sub1: ex.sub1, sub2: ex.sub2, note: ex.note,
+  };
+}
+
+function getNextExercise(program, cat, ex){
+  const src = program === 'p1' ? DATA : PROGRAM2_DATA;
+  const list = src[cat];
+  const idx = list.findIndex(e => e.n === ex.n);
+  if(idx >= 0 && idx+1 < list.length) return list[idx+1];
+  return null;
+}
+
+function entriesForWeek(entries, program, week){
+  if(program !== 'p2') return entries;
+  return entries.filter(e => (e.week || 1) === week);
+}
+
+function fmtDate(d){
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString('th-TH', {day:'2-digit', month:'short'});
+}
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+}
+
+// This build stores data in the browser's localStorage instead of Claude's
+// artifact window.storage API, so it must be opened outside claude.ai
+// (as a local file, or hosted on your own site) for data to persist.
+const LOCAL_STORAGE_PREFIX = "loadline:";
+
+async function loadEntries(id){
+  if(cache[id]) return cache[id];
+  try{
+    const raw = localStorage.getItem(LOCAL_STORAGE_PREFIX + id);
+    cache[id] = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    cache[id] = [];
+  }
+  return cache[id];
+}
+
+let storageHealthWarned = false;
+
+async function saveEntries(id, entries){
+  cache[id] = entries;
+  try{
+    localStorage.setItem(LOCAL_STORAGE_PREFIX + id, JSON.stringify(entries));
+    return true;
+  }catch(e){
+    console.error("storage error", e);
+    if(!storageHealthWarned){
+      storageHealthWarned = true;
+      showToast("⚠️ บันทึกลงเครื่องไม่สำเร็จ (พื้นที่เก็บข้อมูลอาจเต็ม) — กด ⇅ Export เก็บไว้ก่อนปิด");
+      const backupBtnEl = document.getElementById('backupBtn');
+      if(backupBtnEl){ backupBtnEl.classList.add('warn'); backupBtnEl.textContent = '⚠'; }
+    }
+    return false;
+  }
+}
+
+function topLoad(entry){
+  if(!entry.sets || !entry.sets.length) return null;
+  const loads = entry.sets.map(s=>parseFloat(s.load)).filter(v=>!isNaN(v));
+  return loads.length ? Math.max(...loads) : null;
+}
+
+function topSet(entry){
+  if(!entry || !entry.sets || !entry.sets.length) return null;
+  let best = null;
+  entry.sets.forEach(s=>{
+    const load = parseFloat(s.load);
+    if(!isNaN(load)){
+      if(!best || load > best.load) best = {load, reps: s.reps};
+    }
+  });
+  return best;
+}
+
+function renderSpark(svgId, values, color){
+  const el = document.getElementById(svgId);
+  if(!el) return;
+  const pts = values.slice(-8);
+  if(pts.length < 2){ el.innerHTML=""; return; }
+  const w = el.clientWidth || 300, h = el.clientHeight || 28;
+  const min = Math.min(...pts), max = Math.max(...pts);
+  const range = (max - min) || 1;
+  const step = w / (pts.length - 1);
+  const coords = pts.map((v,i)=>{
+    const x = i*step;
+    const y = h - ((v-min)/range) * (h-6) - 3;
+    return [x,y];
+  });
+  const path = coords.map((c,i)=> (i===0?"M":"L") + c[0].toFixed(1) + "," + c[1].toFixed(1)).join(" ");
+  const last = coords[coords.length-1];
+  const col = color || "#C9A24B";
+  el.innerHTML = '<svg width="100%" height="'+h+'" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none">'
+    + '<path d="'+path+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="3" fill="'+col+'"/>'
+    + '</svg>';
+}
+
+// ---------- Tabs ----------
+function renderProgramSwitch(){
+  const wrap = document.getElementById('programSwitch');
+  wrap.innerHTML =
+    '<button class="program-btn'+(currentProgram==='p1'?' active':'')+'" id="progP1Btn">LOADLINE<span class="p-sub">Week 12 Program</span></button>'
+    + '<button class="program-btn'+(currentProgram==='p2'?' active p2':'')+'" id="progP2Btn">MIN-MAX<span class="p-sub">Peak Physique · 5x/Week</span></button>';
+  document.getElementById('progP1Btn').addEventListener('click', ()=> switchProgram('p1'));
+  document.getElementById('progP2Btn').addEventListener('click', ()=> switchProgram('p2'));
+
+  const weekBar = document.getElementById('weekSelectBar');
+  if(currentProgram === 'p2'){
+    weekBar.style.display = 'block';
+    weekBar.innerHTML =
+      '<div class="week-select-label">สัปดาห์ที่กำลังฝึก</div>'
+      + '<div class="week-chip-row" id="weekChipRow"></div>';
+    const row = document.getElementById('weekChipRow');
+    for(let w=1; w<=12; w++){
+      const meta = WEEK_META[String(w)];
+      const chip = document.createElement('button');
+      chip.className = 'week-chip' + (currentWeek===w ? ' active' : '');
+      chip.innerHTML = w + (meta.phase ? '<span class="wk-phase">'+meta.phase.replace(' Week','')+'</span>' : '');
+      chip.addEventListener('click', ()=>{ currentWeek = w; renderProgramSwitch(); renderMain(); });
+      row.appendChild(chip);
+    }
+  } else {
+    weekBar.style.display = 'none';
+    weekBar.innerHTML = '';
+  }
+}
+
+function switchProgram(p){
+  if(currentProgram === p) return;
+  currentProgram = p;
+  const firstCat = Object.keys(activeCatData())[0];
+  currentView = { mode:'category', cat: firstCat };
+  renderProgramSwitch();
+  renderTabs();
+  renderMain();
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = "";
+  Object.keys(activeCatData()).forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (currentView.mode==='category' && currentView.cat===cat ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', ()=>{ currentView = {mode:'category', cat}; renderTabs(); renderMain(); });
+    tabs.appendChild(btn);
+  });
+  const sep = document.createElement('div');
+  sep.className = 'tab-sep';
+  tabs.appendChild(sep);
+
+  const runBtn = document.createElement('button');
+  runBtn.className = 'tab special' + (currentView.mode==='running' ? ' active' : '');
+  runBtn.textContent = '🏃 วิ่ง';
+  runBtn.addEventListener('click', ()=>{ currentView = {mode:'running'}; renderTabs(); renderMain(); });
+  tabs.appendChild(runBtn);
+
+  const calBtn = document.createElement('button');
+  calBtn.className = 'tab special' + (currentView.mode==='calendar' ? ' active' : '');
+  calBtn.textContent = '📅 ปฏิทิน';
+  calBtn.addEventListener('click', ()=>{ currentView = {mode:'calendar'}; renderTabs(); renderMain(); });
+  tabs.appendChild(calBtn);
+
+  const foodBtn = document.createElement('button');
+  foodBtn.className = 'tab special' + (currentView.mode==='nutrition' ? ' active food-active' : '');
+  foodBtn.textContent = '🍽 แคล';
+  foodBtn.addEventListener('click', ()=>{ currentView = {mode:'nutrition'}; renderTabs(); renderMain(); });
+  tabs.appendChild(foodBtn);
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  main.innerHTML = "";
+  if(currentView.mode === 'category') renderCategoryView(main);
+  else if(currentView.mode === 'running') renderRunningView(main);
+  else if(currentView.mode === 'calendar') renderCalendarView(main);
+  else if(currentView.mode === 'nutrition') renderNutritionView(main);
+}
+
+// ---------- Category view ----------
+async function renderCategoryView(main){
+  const currentCat = currentView.cat;
+  const program = currentProgram;
+  const week = currentWeek;
+  const catData = activeCatData();
+  main.innerHTML = '<div class="section-label">'+currentCat+(program==='p2' ? ' · WEEK '+week : '')+'</div>';
+  const list = document.createElement('div');
+  main.appendChild(list);
+
+  for(const ex of catData[currentCat]){
+    const meta = exMeta(program, ex, week);
+    const id = storageId(program, currentCat, ex.n);
+    const entries = await loadEntries(id);
+    const weekEntries = entriesForWeek(entries, program, week);
+    const sorted = [...weekEntries].sort((a,b)=> a.date.localeCompare(b.date));
+    const last = sorted[sorted.length-1];
+    const prev = sorted[sorted.length-2];
+    const lastSet = last ? topSet(last) : null;
+    const lastLoad = last ? topLoad(last) : null;
+    const prevLoad = prev ? topLoad(prev) : null;
+
+    let trendHtml = "";
+    if(lastLoad!==null && prevLoad!==null){
+      if(lastLoad > prevLoad) trendHtml = '<div class="ex-trend trend-up">▲ +'+(lastLoad-prevLoad).toFixed(1)+'</div>';
+      else if(lastLoad < prevLoad) trendHtml = '<div class="ex-trend trend-down">▼ '+(lastLoad-prevLoad).toFixed(1)+'</div>';
+      else trendHtml = '<div class="ex-trend trend-flat">— คงที่</div>';
+    }
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    const sparkId = 'spark-' + (program==='p2'?'p2-':'') + slug(currentCat, ex.n);
+    card.innerHTML =
+      '<div class="card-top">'
+      + '<div>'
+      + '<div class="ex-name">'+ex.n+'</div>'
+      + '<div class="ex-target">'+meta.sets+' SETS × '+meta.reps+' REPS'+(meta.tech!=="N/A" ? " · " + meta.tech.toUpperCase() : "")+'<br><span class="rest-chip">⏱ REST '+meta.rest.toUpperCase()+'</span> · <span class="warmup-chip">WARM-UP '+meta.warmup+'</span> · <span class="rir-chip">RIR '+meta.rir+'</span></div>'
+      + '</div>'
+      + '<div class="ex-last">'
+      + '<div class="ex-last-load '+(lastSet===null ? 'empty' : '')+'">'+(lastSet!==null ? (lastSet.load+' × '+(lastSet.reps||'-')) : 'ยังไม่มีข้อมูล')+'</div>'
+      + trendHtml
+      + '</div>'
+      + '</div>'
+      + '<div class="spark" id="'+sparkId+'"></div>';
+    card.addEventListener('click', ()=> openDetail(currentCat, ex));
+    list.appendChild(card);
+    renderSpark(sparkId, sorted.map(e=>topLoad(e)).filter(v=>v!==null), program==='p2'?"#C97A9E":"#C9A24B");
+  }
+}
+
+// ---------- Detail overlay ----------
+let overlayEl = null;
+
+function parseRestSeconds(restStr){
+  if(!restStr || restStr === 'N/A') return 90;
+  const m = restStr.match(/(\d+)/);
+  const num = m ? parseInt(m[1],10) : 2;
+  if(/sec/i.test(restStr)) return num;
+  return num*60;
+}
+
+async function openDetail(cat, ex){
+  const program = currentProgram;
+  const week = currentWeek;
+  const meta = exMeta(program, ex, week);
+  const id = storageId(program, cat, ex.n);
+  activeExercise = {cat, ex, id, program, week, meta};
+  const entries = await loadEntries(id);
+  const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date));
+  const weekSortedDesc = [...entriesForWeek(entries, program, week)].sort((a,b)=> b.date.localeCompare(a.date));
+
+  if(overlayEl) overlayEl.remove();
+  overlayEl = document.createElement('div');
+  overlayEl.className = 'overlay';
+  overlayEl.id = 'detailOverlay';
+
+  const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
+  const bestLoad = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : null;
+
+  const weekBadge = program === 'p2' ? ' · WEEK '+week : '';
+  const extraInfo = program === 'p2'
+    ? '<div class="p2-extra-info">'
+      + (meta.note ? '<div class="p2-note">💡 '+escapeHtml(meta.note)+'</div>' : '')
+      + ((meta.sub1||meta.sub2) ? '<div class="p2-subs">ทางเลือกทดแทน: '+[meta.sub1,meta.sub2].filter(Boolean).map(escapeHtml).join(' · ')+'</div>' : '')
+      + '</div>'
+    : '';
+
+  overlayEl.innerHTML =
+    '<div class="overlay-header">'
+    + '<button class="back-btn" id="closeDetail">‹</button>'
+    + '<div>'
+    + '<div class="overlay-title">'+ex.n+'</div>'
+    + '<div class="overlay-sub">'+cat+weekBadge+' · '+meta.sets+' SETS × '+meta.reps+(meta.tech!=="N/A" ? " · " + meta.tech : "")+' · REST '+meta.rest+' · WARM-UP '+meta.warmup+' · RIR '+meta.rir+'</div>'
+    + '</div>'
+    + '<button class="info-btn" id="wuInfoBtn">ⓘ</button>'
+    + '</div>'
+    + '<div class="overlay-body">'
+    + extraInfo
+    + '<div class="quickstart-row">'
+    + (meta.rest !== 'N/A' ? '<button class="rest-quickstart" id="restQuickstart">⏱ เริ่มจับเวลาพัก ('+meta.rest+')</button>' : '')
+    + '<button class="warmup-quickstart" id="warmupQuickstart">🧮 คำนวณวอร์มอัพ</button>'
+    + '</div>'
+    + '<div class="stat-row">'
+    + '<div class="stat"><div class="stat-label">ล่าสุด</div><div class="stat-value">'+(lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—')+'</div></div>'
+    + '<div class="stat"><div class="stat-label">สูงสุด</div><div class="stat-value">'+(bestLoad!==null ? bestLoad : '—')+'</div></div>'
+    + '</div>'
+    + '<svg class="big-spark" id="bigSpark"></svg>'
+    + '<div class="section-label">ประวัติ (แตะเพื่อแก้ไข)</div>'
+    + '<div id="historyList"></div>'
+    + '</div>'
+    + '<button class="fab" id="addEntryBtn">+ บันทึกเซ็ตวันนี้</button>';
+  document.body.appendChild(overlayEl);
+  requestAnimationFrame(()=> overlayEl.classList.add('open'));
+
+  document.getElementById('closeDetail').addEventListener('click', closeDetail);
+  document.getElementById('addEntryBtn').addEventListener('click', openLiveLogSheet);
+  const restBtn = document.getElementById('restQuickstart');
+  if(restBtn){
+    restBtn.addEventListener('click', ()=>{
+      openTimerSheet(parseRestSeconds(meta.rest), ex.n + ' · REST ' + meta.rest);
+    });
+  }
+  document.getElementById('warmupQuickstart').addEventListener('click', ()=>{
+    openWarmupSheet({n:ex.n, warmup:meta.warmup, rest:meta.rest}, lastSet ? lastSet.load : null);
+  });
+  document.getElementById('wuInfoBtn').addEventListener('click', openGuidelineSheet);
+
+  renderBigSpark(sorted);
+  renderHistory(sorted);
+}
+
+function renderBigSpark(sortedDesc){
+  const asc = [...sortedDesc].reverse();
+  const el = document.getElementById('bigSpark');
+  if(!el) return;
+  const pts = asc.map(e=>topLoad(e)).filter(v=>v!==null);
+  if(pts.length < 2){
+    el.style.display='none';
+    return;
+  }
+  el.style.display='block';
+  const w = 320, h = 70;
+  el.setAttribute('viewBox', '0 0 '+w+' '+h);
+  el.setAttribute('preserveAspectRatio','none');
+  const min = Math.min(...pts), max = Math.max(...pts);
+  const range = (max-min) || 1;
+  const step = w/(pts.length-1);
+  const coords = pts.map((v,i)=>[i*step, h - ((v-min)/range)*(h-10) - 5]);
+  const path = coords.map((c,i)=>(i===0?"M":"L")+c[0].toFixed(1)+","+c[1].toFixed(1)).join(" ");
+  el.innerHTML = '<path d="'+path+'" fill="none" stroke="#C9A24B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + coords.map(c=>'<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="#6B7A4F"/>').join("");
+}
+
+function entryVolume(entry){
+  return entry.sets.reduce((sum,s)=>{
+    const load = parseFloat(s.load)||0, reps = parseFloat(s.reps)||0;
+    return sum + load*reps;
+  }, 0);
+}
+
+function renderHistory(sortedDesc){
+  const wrap = document.getElementById('historyList');
+  if(!sortedDesc.length){
+    wrap.innerHTML = '<div class="empty-hint">ยังไม่มีบันทึก — กด "บันทึกเซ็ตวันนี้" เพื่อเริ่มเก็บ progress</div>';
+    return;
+  }
+  wrap.innerHTML = sortedDesc.map((entry,idx)=>{
+    const setsHtml = entry.sets.map((s,i)=>
+      '<div class="log-set-line"><span class="set-tag">S'+(i+1)+'</span><span class="set-val">'+(s.load||'-')+' × '+(s.reps||'-')+'</span></div>'
+    ).join('');
+
+    const vol = entryVolume(entry);
+    const prevEntry = sortedDesc[idx+1]; // next in array = chronologically earlier (previous session)
+    let volHtml = '<div class="log-volume"><span class="vol-num">VOL '+Math.round(vol)+'</span>';
+    if(prevEntry){
+      const prevVol = entryVolume(prevEntry);
+      if(vol > prevVol) volHtml += '<span class="vol-trend trend-up">▲ ดีขึ้น</span>';
+      else if(vol < prevVol) volHtml += '<span class="vol-trend trend-down">▼ แย่ลง</span>';
+      else volHtml += '<span class="vol-trend trend-flat">— เท่าเดิม</span>';
+    }
+    volHtml += '</div>';
+
+    return '<div class="log-item" data-entry-id="'+entry.id+'" style="cursor:pointer;">'
+      + '<div>'
+      + '<div class="log-date">'+fmtDate(entry.date)+'</div>'
+      + '<div class="log-sets">'+setsHtml+'</div>'
+      + (entry.note ? '<div class="log-note"><span class="note-tag">โน้ต</span>'+escapeHtml(entry.note)+'</div>' : '')
+      + '</div>'
+      + '<div class="log-item-right">'
+      + volHtml
+      + '<button class="log-del" data-id="'+entry.id+'">✕</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  wrap.querySelectorAll('.log-del').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{ ev.stopPropagation(); deleteEntry(btn.dataset.id); });
+  });
+  wrap.querySelectorAll('.log-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const entry = sortedDesc.find(e=> String(e.id) === item.dataset.entryId);
+      if(entry) openEditSetsSheet(entry);
+    });
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function deleteEntry(entryId){
+  const {id, program, week} = activeExercise;
+  let entries = await loadEntries(id);
+  entries = entries.filter(e=> String(e.id) !== String(entryId));
+  await saveEntries(id, entries);
+  const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date));
+  const weekSortedDesc = [...entriesForWeek(entries, program, week)].sort((a,b)=> b.date.localeCompare(a.date));
+  const statVals = document.querySelectorAll('#detailOverlay .stat-value');
+  const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
+  statVals[0].textContent = lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—';
+  statVals[1].textContent = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : '—';
+  renderBigSpark(sorted);
+  renderHistory(sorted);
+}
+
+function closeDetail(){
+  if(!overlayEl) return;
+  overlayEl.classList.remove('open');
+  setTimeout(()=>{ overlayEl.remove(); overlayEl=null; renderMain(); }, 280);
+}
+
+// ---------- Entry sheet (strength): live set-by-set logging + edit mode ----------
+const sheet = document.getElementById('sheet');
+const backdrop = document.getElementById('backdrop');
+let entrySheetMode = 'live'; // 'live' | 'edit'
+let editSetsEntryId = null;
+let editSetsRows = []; // working array of {load, reps} while editing
+
+function closeEntrySheet(){
+  backdrop.classList.remove('open');
+  sheet.classList.remove('open');
+}
+backdrop.addEventListener('click', closeEntrySheet);
+
+async function refreshDetailStats(){
+  const {id, program, week} = activeExercise;
+  const entries = await loadEntries(id);
+  const sorted = [...entries].sort((a,b)=> b.date.localeCompare(a.date));
+  const weekSortedDesc = [...entriesForWeek(entries, program, week)].sort((a,b)=> b.date.localeCompare(a.date));
+  const statVals = document.querySelectorAll('#detailOverlay .stat-value');
+  if(statVals.length){
+    const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
+    statVals[0].textContent = lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—';
+    statVals[1].textContent = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : '—';
+    renderBigSpark(sorted);
+    renderHistory(sorted);
+  }
+  return sorted;
+}
+
+// ---- Live set-by-set logging ----
+function openLiveLogSheet(){
+  entrySheetMode = 'live';
+  document.getElementById('sheetTitle').textContent = 'บันทึกเซ็ต: ' + activeExercise.ex.n;
+  renderLiveLogStep();
+  backdrop.classList.add('open');
+  sheet.classList.add('open');
+}
+
+async function renderLiveLogStep(){
+  const body = document.getElementById('entrySheetBody');
+  const {ex, id, meta, program, cat, week} = activeExercise;
+  const totalSets = meta.sets || 1;
+  const entries = await loadEntries(id);
+  const today = todayStr();
+  const todayEntry = program === 'p2'
+    ? entries.find(e=> e.date === today && (e.week||1) === week)
+    : entries.find(e=> e.date === today);
+  const loggedCount = todayEntry ? todayEntry.sets.length : 0;
+
+  if(loggedCount >= totalSets){
+    const setsStr = todayEntry.sets.map((s,i)=> 'S'+(i+1)+': '+(s.load||'-')+' × '+(s.reps||'-')).join('   ');
+    const nextEx = getNextExercise(program, cat, ex);
+    body.innerHTML =
+      '<div class="live-complete">'
+      + '<div class="live-complete-check">✓</div>'
+      + '<div class="live-complete-title">เล่นครบ '+totalSets+' เซ็ตแล้ว</div>'
+      + '<div class="live-complete-sets">'+setsStr+'</div>'
+      + '</div>'
+      + (nextEx ? '<button class="next-ex-btn" id="nextExBtn">ท่าต่อไป: '+nextEx.n+' →</button>' : '')
+      + '<button class="close-plain-btn" id="closeLiveBtn">เสร็จสิ้น</button>';
+    if(nextEx){
+      document.getElementById('nextExBtn').addEventListener('click', ()=> goToNextExercise(nextEx));
+    }
+    document.getElementById('closeLiveBtn').addEventListener('click', closeEntrySheet);
+    return;
+  }
+
+  const stepNum = loggedCount + 1;
+  const isLastSet = stepNum === totalSets;
+  let dots = '';
+  for(let i=1;i<=totalSets;i++){
+    dots += '<div class="live-dot '+(i<stepNum?'done':(i===stepNum?'current':''))+'"></div>';
+  }
+
+  const loggedSoFarHtml = loggedCount > 0
+    ? '<div class="live-logged-so-far">' + todayEntry.sets.map((s,i)=>
+        '<span class="lsf-item">S'+(i+1)+': <b>'+(s.load||'-')+' × '+(s.reps||'-')+'</b></span>'
+      ).join('') + '</div>'
+    : '';
+
+  // Reference from the most recent prior session, same set number, for a "beat last time" hint
+  const priorEntry = entries.filter(e=> e.date !== today).sort((a,b)=> b.date.localeCompare(a.date))[0];
+  const priorSet = priorEntry ? priorEntry.sets[loggedCount] : null;
+  const priorHint = priorSet
+    ? '<div class="live-prev-hint">ครั้งก่อน (เซ็ต '+stepNum+'): <span>'+(priorSet.load||'-')+' × '+(priorSet.reps||'-')+'</span></div>'
+    : '';
+
+  body.innerHTML =
+    '<div class="live-progress-dots">'+dots+'</div>'
+    + loggedSoFarHtml
+    + '<div class="live-step-label">เซ็ต '+stepNum+' จาก '+totalSets+' <span class="target-reps-badge">เป้าหมาย '+meta.reps+' ครั้ง</span></div>'
+    + priorHint
+    + '<div class="live-context">'
+    + '<div class="live-ctx-row">'
+    + '<div class="live-ctx-item rest"><span class="lbl">Rest</span><span class="val">'+meta.rest+'</span></div>'
+    + '<div class="live-ctx-item rir"><span class="lbl">RIR</span><span class="val">'+meta.rir+'</span></div>'
+    + '<div class="live-ctx-item warmup"><span class="lbl">Warm-up</span><span class="val">'+meta.warmup+'</span></div>'
+    + (meta.rest !== 'N/A' ? '<button type="button" class="live-ctx-timer-btn" id="liveRestTimerBtn">⏱ เริ่มพัก</button>' : '')
+    + '</div>'
+    + (meta.tech!=='N/A' ? '<div class="live-ctx-tech">'+(isLastSet?'🔥 เซ็ตนี้ (เซ็ตสุดท้าย): ':'ℹ️ ใช้เฉพาะเซ็ตสุดท้าย: ')+meta.tech+'</div>' : '')
+    + '</div>'
+    + '<div class="live-input-row">'
+    + '<div class="live-input-col"><label>น้ำหนัก</label><input type="number" inputmode="decimal" id="liveLoad" placeholder="'+(priorSet&&priorSet.load?priorSet.load:'')+'"></div>'
+    + '<div class="live-x">×</div>'
+    + '<div class="live-input-col"><label>ครั้ง</label><input type="number" inputmode="numeric" id="liveReps" placeholder="'+(priorSet&&priorSet.reps?priorSet.reps:meta.reps)+'"></div>'
+    + '</div>'
+    + '<div class="field"><span class="field-label">โน้ต (ไม่บังคับ)</span><input type="text" id="liveNote" value="'+(todayEntry?escapeHtml(todayEntry.note||''):'')+'" placeholder="เช่น ฟอร์มดีขึ้น, RIR แน่น"></div>'
+    + '<button class="save-btn" id="saveSetBtn">บันทึกเซ็ตนี้ →</button>';
+
+  const restBtn2 = document.getElementById('liveRestTimerBtn');
+  if(restBtn2){
+    restBtn2.addEventListener('click', ()=>{
+      openTimerSheet(parseRestSeconds(meta.rest), ex.n + ' · REST ' + meta.rest);
+    });
+  }
+
+  document.getElementById('saveSetBtn').addEventListener('click', async ()=>{
+    const btn = document.getElementById('saveSetBtn');
+    const load = document.getElementById('liveLoad').value;
+    const reps = document.getElementById('liveReps').value;
+    const note = document.getElementById('liveNote').value.trim();
+    if(!load && !reps){
+      showToast('กรอกน้ำหนักหรือจำนวนครั้งอย่างน้อย 1 อย่าง');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก...';
+    const entriesNow = await loadEntries(id);
+    const workingEntries = entriesNow.map(e=> ({ ...e, sets: e.sets.map(s=>({...s})) }));
+    let entry = program === 'p2'
+      ? workingEntries.find(e=> e.date === today && (e.week||1) === week)
+      : workingEntries.find(e=> e.date === today);
+    if(!entry){
+      entry = { id: Date.now(), date: today, sets: [], note: '' };
+      if(program === 'p2') entry.week = week;
+      workingEntries.push(entry);
+    }
+    entry.sets.push({load, reps});
+    if(note) entry.note = note;
+    const ok = await saveEntries(id, workingEntries);
+    btn.disabled = false;
+    if(ok) showToast('บันทึกเซ็ตแล้ว ✓');
+    // Proceed regardless: the set is kept in memory for this session either way,
+    // and saveEntries already surfaces a one-time warning if persistence is failing.
+    await refreshDetailStats();
+    renderLiveLogStep();
+  });
+}
+
+function goToNextExercise(nextEx){
+  closeEntrySheet();
+  if(overlayEl){ overlayEl.remove(); overlayEl = null; }
+  openDetail(activeExercise.cat, nextEx);
+}
+
+// ---- Edit existing logged sets ----
+function openEditSetsSheet(entry){
+  entrySheetMode = 'edit';
+  editSetsEntryId = entry.id;
+  editSetsRows = entry.sets.map(s=> ({load: s.load, reps: s.reps}));
+  document.getElementById('sheetTitle').textContent = 'แก้ไข: ' + activeExercise.ex.n + ' (' + fmtDate(entry.date) + ')';
+  renderEditSetsBody(entry.note || '');
+  backdrop.classList.add('open');
+  sheet.classList.add('open');
+}
+
+function renderEditSetsBody(noteVal){
+  const body = document.getElementById('entrySheetBody');
+  body.innerHTML =
+    '<div id="editSetsContainer"></div>'
+    + '<button type="button" class="add-ing-btn" id="addEditSetBtn">+ เพิ่มเซ็ต</button>'
+    + '<div class="field"><span class="field-label">โน้ต (ไม่บังคับ)</span><input type="text" id="editNote" value="'+escapeHtml(noteVal)+'"></div>'
+    + '<button class="save-btn" id="saveEditSetsBtn">บันทึกการแก้ไข</button>'
+    + '<button class="timer-btn reset" id="deleteEditEntryBtn" style="width:100%; margin-top:8px;">ลบบันทึกวันนี้ทั้งหมด</button>';
+
+  renderEditSetsRows();
+
+  document.getElementById('addEditSetBtn').addEventListener('click', ()=>{
+    editSetsRows.push({load:'', reps:''});
+    renderEditSetsRows();
+  });
+
+  document.getElementById('saveEditSetsBtn').addEventListener('click', async ()=>{
+    const rows = document.querySelectorAll('#editSetsContainer .edit-set-row');
+    const sets = [];
+    rows.forEach(r=>{
+      const load = r.querySelector('.es-load').value;
+      const reps = r.querySelector('.es-reps').value;
+      if(load || reps) sets.push({load, reps});
+    });
+    if(!sets.length){
+      showToast('ต้องมีอย่างน้อย 1 เซ็ต');
+      return;
+    }
+    const note = document.getElementById('editNote').value.trim();
+    const {id} = activeExercise;
+    let entries = await loadEntries(id);
+    const idx = entries.findIndex(e=> String(e.id) === String(editSetsEntryId));
+    if(idx>=0){
+      entries[idx].sets = sets;
+      entries[idx].note = note;
+      await saveEntries(id, entries);
+      closeEntrySheet();
+      showToast('แก้ไขแล้ว ✓');
+      refreshDetailStats();
+    }
+  });
+
+  document.getElementById('deleteEditEntryBtn').addEventListener('click', async ()=>{
+    const {id} = activeExercise;
+    let entries = await loadEntries(id);
+    entries = entries.filter(e=> String(e.id) !== String(editSetsEntryId));
+    await saveEntries(id, entries);
+    closeEntrySheet();
+    showToast('ลบแล้ว');
+    refreshDetailStats();
+  });
+}
+
+function renderEditSetsRows(){
+  const container = document.getElementById('editSetsContainer');
+  container.innerHTML = editSetsRows.map((s,i)=>
+    '<div class="edit-set-row" data-idx="'+i+'">'
+    + '<div class="set-idx">S'+(i+1)+'</div>'
+    + '<input type="number" inputmode="decimal" class="es-load" placeholder="น้ำหนัก" value="'+(s.load||'')+'">'
+    + '<span style="color:var(--muted); font-family:JetBrains Mono,monospace;">×</span>'
+    + '<input type="number" inputmode="numeric" class="es-reps" placeholder="ครั้ง" value="'+(s.reps||'')+'">'
+    + '<button type="button" class="edit-set-del" data-del="'+i+'">✕</button>'
+    + '</div>'
+  ).join('');
+  container.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      editSetsRows.splice(parseInt(btn.dataset.del,10),1);
+      renderEditSetsRows();
+    });
+  });
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1800);
+}
+
+// ---------- Running view ----------
+const RUN_KEY = "running:log";
+
+async function loadRunEntries(){
+  return await loadEntries(RUN_KEY);
+}
+
+function paceStr(distanceKm, durationMin){
+  const d = parseFloat(distanceKm), t = parseFloat(durationMin);
+  if(!d || !t) return null;
+  const paceMin = t / d;
+  const mins = Math.floor(paceMin);
+  const secs = Math.round((paceMin - mins) * 60);
+  return mins + ":" + String(secs).padStart(2,'0') + " /กม.";
+}
+function paceValue(distanceKm, durationMin){
+  const d = parseFloat(distanceKm), t = parseFloat(durationMin);
+  if(!d || !t) return null;
+  return d / t; // speed km per min — higher is better/faster
+}
+
+async function renderRunningView(main){
+  const entries = await loadRunEntries();
+  const sorted = [...entries].sort((a,b)=> a.date.localeCompare(b.date)); // ascending
+  const sortedDesc = [...sorted].reverse();
+
+  const last = sorted[sorted.length-1];
+  const prev = sorted[sorted.length-2];
+  const lastPace = last ? paceStr(last.distanceKm, last.durationMin) : null;
+  const lastSpeed = last ? paceValue(last.distanceKm, last.durationMin) : null;
+  const prevSpeed = prev ? paceValue(prev.distanceKm, prev.durationMin) : null;
+
+  let trendHtml = "";
+  if(lastSpeed!==null && prevSpeed!==null){
+    if(lastSpeed > prevSpeed) trendHtml = '<div class="ex-trend trend-up">▲ เร็วขึ้น</div>';
+    else if(lastSpeed < prevSpeed) trendHtml = '<div class="ex-trend trend-down">▼ ช้าลง</div>';
+    else trendHtml = '<div class="ex-trend trend-flat">— คงที่</div>';
+  }
+
+  main.innerHTML =
+    '<div class="section-label">การวิ่ง</div>'
+    + '<div class="card">'
+    + '<div class="card-top">'
+    + '<div>'
+    + '<div class="ex-name">วิ่งไปแล้ว '+entries.length+' วัน</div>'
+    + '<div class="ex-target">ดูย้อนหลังว่าเพซพัฒนาขึ้นแค่ไหน</div>'
+    + '</div>'
+    + '<div class="ex-last">'
+    + '<div class="ex-last-load '+(lastPace===null?'empty':'')+'">'+(lastPace || 'ยังไม่มีข้อมูล')+'</div>'
+    + trendHtml
+    + '</div>'
+    + '</div>'
+    + '<div class="spark" id="runSpark"></div>'
+    + '</div>'
+    + '<div class="section-label">ประวัติการวิ่ง</div>'
+    + '<div id="runList"></div>';
+
+  renderSpark('runSpark', sorted.map(e=>paceValue(e.distanceKm, e.durationMin)).filter(v=>v!==null), "#7A93A8");
+
+  const list = document.getElementById('runList');
+  if(!sortedDesc.length){
+    list.innerHTML = '<div class="empty-hint">ยังไม่มีบันทึกการวิ่ง — กด "บันทึกการวิ่งวันนี้" เพื่อเริ่ม</div>';
+  } else {
+    list.innerHTML = sortedDesc.map(e=>{
+      const pace = paceStr(e.distanceKm, e.durationMin);
+      return '<div class="run-card" data-id="'+e.id+'">'
+        + '<div>'
+        + '<div class="run-date">'+fmtDate(e.date)+'</div>'
+        + '<div class="run-main">'+(parseFloat(e.distanceKm)||0)+' กม. · '+(parseFloat(e.durationMin)||0)+' นาที</div>'
+        + '<div class="run-sub">'+(pace || '')+(e.avgHr ? '  ·  HR '+e.avgHr+' bpm' : '')+'</div>'
+        + (e.note ? '<div class="log-note">'+escapeHtml(e.note)+'</div>' : '')
+        + '</div>'
+        + '<button class="log-del" data-del="'+e.id+'">✕</button>'
+        + '</div>';
+    }).join('');
+    list.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
+        let all = await loadRunEntries();
+        all = all.filter(e=> String(e.id) !== String(btn.dataset.del));
+        await saveEntries(RUN_KEY, all);
+        renderMain();
+      });
+    });
+  }
+
+  const fab = document.createElement('button');
+  fab.className = 'fab run';
+  fab.textContent = '+ บันทึกการวิ่งวันนี้';
+  fab.addEventListener('click', openRunSheet);
+  main.appendChild(fab);
+}
+
+const runSheet = document.getElementById('runSheet');
+const runBackdrop = document.getElementById('runBackdrop');
+
+function openRunSheet(){
+  document.getElementById('runDate').value = todayStr();
+  document.getElementById('runDistance').value = '';
+  document.getElementById('runDuration').value = '';
+  document.getElementById('runHr').value = '';
+  document.getElementById('runNote').value = '';
+  runBackdrop.classList.add('open');
+  runSheet.classList.add('open');
+}
+function closeRunSheet(){
+  runBackdrop.classList.remove('open');
+  runSheet.classList.remove('open');
+}
+runBackdrop.addEventListener('click', closeRunSheet);
+
+document.getElementById('saveRunBtn').addEventListener('click', async ()=>{
+  const date = document.getElementById('runDate').value || todayStr();
+  const distanceKm = document.getElementById('runDistance').value;
+  const durationMin = document.getElementById('runDuration').value;
+  const avgHr = document.getElementById('runHr').value;
+  const note = document.getElementById('runNote').value.trim();
+  if(!distanceKm || !durationMin){
+    showToast("กรอกระยะทางและเวลาอย่างน้อย");
+    return;
+  }
+  let entries = await loadRunEntries();
+  entries.push({id: Date.now(), date, distanceKm, durationMin, avgHr, note});
+  await saveEntries(RUN_KEY, entries);
+  closeRunSheet();
+  showToast("บันทึกการวิ่งแล้ว ✓");
+  renderMain();
+});
+
+// ---------- Calendar view ----------
+async function buildMonthActivity(year, month){
+  const map = {};
+  function ensure(date){
+    if(!map[date]) map[date] = { cats: new Set(), ran:false, runInfo:null, catExercises:{}, p2:false, p2Exercises:[] };
+    return map[date];
+  }
+  const prefix = year + "-" + String(month+1).padStart(2,'0');
+
+  for(const cat of Object.keys(DATA)){
+    for(const ex of DATA[cat]){
+      const id = "entries:" + slug(cat, ex.n);
+      const entries = await loadEntries(id);
+      entries.forEach(e=>{
+        if(e.date && e.date.startsWith(prefix)){
+          const d = ensure(e.date);
+          d.cats.add(cat);
+          if(!d.catExercises[cat]) d.catExercises[cat] = [];
+          d.catExercises[cat].push(ex.n);
+        }
+      });
+    }
+  }
+  for(const cat of Object.keys(PROGRAM2_DATA)){
+    for(const ex of PROGRAM2_DATA[cat]){
+      const id = storageId('p2', cat, ex.n);
+      const entries = await loadEntries(id);
+      entries.forEach(e=>{
+        if(e.date && e.date.startsWith(prefix)){
+          const d = ensure(e.date);
+          d.p2 = true;
+          d.p2Exercises.push(cat + ': ' + ex.n);
+        }
+      });
+    }
+  }
+  const runEntries = await loadRunEntries();
+  runEntries.forEach(e=>{
+    if(e.date && e.date.startsWith(prefix)){
+      const d = ensure(e.date);
+      d.ran = true;
+      d.runInfo = e;
+    }
+  });
+  return map;
+}
+
+async function renderCalendarView(main){
+  const {year, month} = calState;
+  const monthNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  main.innerHTML =
+    '<div class="cal-nav">'
+    + '<button class="cal-nav-btn" id="prevMonth">‹</button>'
+    + '<div class="cal-month-label">'+monthNames[month]+' '+(year+543)+'</div>'
+    + '<button class="cal-nav-btn" id="nextMonth">›</button>'
+    + '</div>'
+    + '<div class="cal-grid" id="calGrid"></div>'
+    + '<div class="cal-legend" id="calLegend"></div>'
+    + '<div id="calDayDetail"></div>';
+
+  document.getElementById('prevMonth').addEventListener('click', ()=>{
+    calState.month--; if(calState.month<0){calState.month=11; calState.year--;}
+    calState.selectedDate = null;
+    renderMain();
+  });
+  document.getElementById('nextMonth').addEventListener('click', ()=>{
+    calState.month++; if(calState.month>11){calState.month=0; calState.year++;}
+    calState.selectedDate = null;
+    renderMain();
+  });
+
+  const legend = document.getElementById('calLegend');
+  legend.innerHTML = Object.keys(DATA).map(cat=>
+    '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+CAT_COLORS[cat]+'"></div>'+cat+'</div>'
+  ).join('')
+    + '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+P2_COLOR+'"></div>MIN-MAX</div>'
+    + '<div class="cal-legend-item"><div class="cal-legend-dot" style="background:'+RUN_COLOR+'"></div>วิ่ง</div>';
+
+  const activity = await buildMonthActivity(year, month);
+
+  const grid = document.getElementById('calGrid');
+  const dows = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  dows.forEach(d=>{
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayS = todayStr();
+
+  for(let i=0;i<firstDay;i++){
+    const el = document.createElement('div');
+    el.className = 'cal-cell empty';
+    grid.appendChild(el);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = year + "-" + String(month+1).padStart(2,'0') + "-" + String(day).padStart(2,'0');
+    const info = activity[dateStr];
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (dateStr===todayS ? ' today' : '');
+    let dots = '';
+    if(info){
+      info.cats.forEach(cat=>{
+        dots += '<div class="cal-dot" style="background:'+CAT_COLORS[cat]+'"></div>';
+      });
+      if(info.p2) dots += '<div class="cal-dot" style="background:'+P2_COLOR+'"></div>';
+      if(info.ran) dots += '<div class="cal-dot" style="background:'+RUN_COLOR+'"></div>';
+    }
+    cell.innerHTML = '<div class="cal-daynum">'+day+'</div><div class="cal-dots">'+dots+'</div>';
+    cell.addEventListener('click', ()=>{
+      calState.selectedDate = dateStr;
+      renderDayDetail(dateStr, activity[dateStr]);
+    });
+    grid.appendChild(cell);
+  }
+
+  if(calState.selectedDate && activity[calState.selectedDate]){
+    renderDayDetail(calState.selectedDate, activity[calState.selectedDate]);
+  }
+}
+
+function renderDayDetail(dateStr, info){
+  const wrap = document.getElementById('calDayDetail');
+  if(!info){
+    wrap.innerHTML = '<div class="cal-day-detail"><div class="cal-day-detail-title">'+fmtDate(dateStr)+'</div><div class="cal-day-line">ไม่มีบันทึกวันนี้</div></div>';
+    return;
+  }
+  let html = '<div class="cal-day-detail"><div class="cal-day-detail-title">'+fmtDate(dateStr)+'</div>';
+  Object.keys(info.catExercises).forEach(cat=>{
+    const names = [...new Set(info.catExercises[cat])];
+    html += '<div class="cal-day-line"><span style="color:'+CAT_COLORS[cat]+'">●</span> '+cat+' — '+names.join(', ')+'</div>';
+  });
+  if(info.p2 && info.p2Exercises.length){
+    const names = [...new Set(info.p2Exercises)];
+    html += '<div class="cal-day-line"><span style="color:'+P2_COLOR+'">●</span> Min-Max — '+names.join(', ')+'</div>';
+  }
+  if(info.ran && info.runInfo){
+    const r = info.runInfo;
+    const pace = paceStr(r.distanceKm, r.durationMin);
+    html += '<div class="cal-day-line"><span style="color:'+RUN_COLOR+'">●</span> วิ่ง '+(parseFloat(r.distanceKm)||0)+' กม. · '+(parseFloat(r.durationMin)||0)+' นาที'+(pace?' · '+pace:'')+(r.avgHr?' · HR '+r.avgHr:'')+'</div>';
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+// ---------- Global Rest Timer ----------
+const TIMER_PRESETS = [60, 90, 120, 150, 180, 210, 240, 300]; // seconds
+let timerState = { remaining: 90, running:false, intervalId:null };
+
+const timerFabBtn = document.getElementById('timerFabBtn');
+const timerFabLabel = document.getElementById('timerFabLabel');
+const timerBackdrop = document.getElementById('timerBackdrop');
+const timerSheetEl = document.getElementById('timerSheet');
+const timerDisplay = document.getElementById('timerDisplay');
+const timerContext = document.getElementById('timerContext');
+const timerPresetsEl = document.getElementById('timerPresets');
+
+function fmtSeconds(s){
+  const m = Math.floor(s/60), sec = s%60;
+  return String(m).padStart(2,'0') + ":" + String(sec).padStart(2,'0');
+}
+
+function renderTimerPresets(){
+  timerPresetsEl.innerHTML = TIMER_PRESETS.map(s=>
+    '<button class="timer-chip" data-sec="'+s+'">'+fmtSeconds(s)+'</button>'
+  ).join('');
+  timerPresetsEl.querySelectorAll('.timer-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      stopTimerInterval();
+      timerState.remaining = parseInt(chip.dataset.sec,10);
+      timerContext.textContent = 'ตั้งเวลาเอง';
+      updateTimerDisplay();
+    });
+  });
+}
+
+function openTimerSheet(prefillSeconds, contextLabel){
+  stopTimerInterval();
+  timerState.remaining = prefillSeconds || 90;
+  timerState.running = false;
+  timerContext.textContent = contextLabel || 'ตั้งเวลาเอง';
+  updateTimerDisplay();
+  document.getElementById('timerStart').textContent = 'เริ่ม';
+  document.getElementById('timerStart').classList.remove('pause');
+  timerBackdrop.classList.add('open');
+  timerSheetEl.classList.add('open');
+}
+function closeTimerSheet(){
+  timerBackdrop.classList.remove('open');
+  timerSheetEl.classList.remove('open');
+}
+timerBackdrop.addEventListener('click', closeTimerSheet);
+timerFabBtn.addEventListener('click', ()=> openTimerSheet(timerState.remaining, timerContext.textContent));
+
+const timerBanner = document.getElementById('timerBanner');
+const timerBannerLabel = document.getElementById('timerBannerLabel');
+const timerBannerTime = document.getElementById('timerBannerTime');
+timerBanner.addEventListener('click', ()=> openTimerSheet(timerState.remaining, timerContext.textContent));
+
+function updateTimerDisplay(){
+  timerDisplay.textContent = fmtSeconds(Math.max(0,timerState.remaining));
+  if(timerState.running){
+    timerFabBtn.classList.add('running');
+    timerFabLabel.textContent = fmtSeconds(Math.max(0,timerState.remaining));
+    timerBanner.style.display = 'flex';
+    timerBannerLabel.textContent = timerContext.textContent;
+    timerBannerTime.textContent = fmtSeconds(Math.max(0,timerState.remaining));
+  } else {
+    timerFabBtn.classList.remove('running');
+    timerFabLabel.textContent = 'พัก';
+    timerBanner.style.display = 'none';
+  }
+}
+
+document.getElementById('timerMinus').addEventListener('click', ()=>{
+  timerState.remaining = Math.max(0, timerState.remaining - 15);
+  updateTimerDisplay();
+});
+document.getElementById('timerPlus').addEventListener('click', ()=>{
+  timerState.remaining = timerState.remaining + 15;
+  updateTimerDisplay();
+});
+document.getElementById('timerReset').addEventListener('click', ()=>{
+  stopTimerInterval();
+  updateTimerDisplay();
+});
+
+document.getElementById('timerStart').addEventListener('click', ()=>{
+  if(timerState.running){
+    stopTimerInterval();
+  } else {
+    startTimerInterval();
+  }
+});
+
+function startTimerInterval(){
+  if(timerState.remaining<=0) return;
+  timerState.running = true;
+  document.getElementById('timerStart').textContent = 'หยุด';
+  document.getElementById('timerStart').classList.add('pause');
+  updateTimerDisplay();
+  timerState.intervalId = setInterval(()=>{
+    timerState.remaining--;
+    updateTimerDisplay();
+    if(timerState.remaining<=0){
+      stopTimerInterval(true);
+      timerFinished();
+    }
+  }, 1000);
+}
+function stopTimerInterval(finished){
+  if(timerState.intervalId) clearInterval(timerState.intervalId);
+  timerState.intervalId = null;
+  timerState.running = false;
+  document.getElementById('timerStart').textContent = 'เริ่ม';
+  document.getElementById('timerStart').classList.remove('pause');
+  if(!finished) updateTimerDisplay();
+}
+function timerFinished(){
+  updateTimerDisplay();
+  try{ if(navigator.vibrate) navigator.vibrate([250,120,250,120,250]); }catch(e){}
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    let t = ctx.currentTime;
+    for(let i=0;i<3;i++){
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.25, t+0.02);
+      g.gain.linearRampToValueAtTime(0.001, t+0.28);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t+0.3);
+      t += 0.4;
+    }
+  }catch(e){}
+  showToast('⏱ หมดเวลาพัก!');
+  timerFabLabel.textContent = 'พัก';
+  timerFabBtn.classList.remove('running');
+}
+
+// ---------- Warm-up calculator ----------
+const wuBackdrop = document.getElementById('wuBackdrop');
+const wuSheet = document.getElementById('wuSheet');
+let wuState = { setCount: 1, weight: null };
+
+function roundToHalf(v){
+  return Math.round(v*2)/2;
+}
+
+function computeWarmupRows(setCount, workingWeight){
+  const proto = WARMUP_PROTOCOL[setCount];
+  if(!proto || !workingWeight) return [];
+  return proto.map((p,i)=>({
+    idx: i+1,
+    pct: p.pct,
+    reps: p.reps,
+    weight: roundToHalf(workingWeight * p.pct / 100)
+  }));
+}
+
+let wuCurrentEx = null;
+
+function openWarmupSheet(ex, lastLoad){
+  wuCurrentEx = ex;
+  document.getElementById('wuTitle').textContent = 'คำนวณน้ำหนักวอร์มอัพ: ' + ex.n;
+  const range = parseRange(ex.warmup);
+  const clampedMax = Math.min(Math.max(range.max,0), 4);
+  const clampedMin = Math.min(Math.max(range.min,0), 4);
+  wuState.setCount = clampedMax > 0 ? clampedMax : 0;
+
+  const weightInput = document.getElementById('wuWeight');
+  const suggestEl = document.getElementById('wuSuggest');
+  if(lastLoad !== null && lastLoad !== undefined){
+    weightInput.value = lastLoad;
+    wuState.weight = lastLoad;
+    suggestEl.innerHTML = 'แนะนำอัตโนมัติจากน้ำหนักล่าสุดที่เล่น: ' + lastLoad;
+  } else {
+    weightInput.value = '';
+    wuState.weight = null;
+    suggestEl.innerHTML = 'ยังไม่มีประวัติน้ำหนัก — กรอกน้ำหนักที่วางแผนจะเล่นวันนี้เอง';
+  }
+
+  weightInput.oninput = ()=>{
+    wuState.weight = parseFloat(weightInput.value) || null;
+    renderWarmupResult();
+  };
+
+  // build chips from range (0..4, protocol only supports up to 4)
+  const chipsEl = document.getElementById('wuChips');
+  const opts = [];
+  for(let i=clampedMin; i<=clampedMax; i++) opts.push(i);
+  if(opts.length===0) opts.push(clampedMax);
+  chipsEl.innerHTML = opts.map(n=>
+    '<button class="wu-chip'+(n===wuState.setCount?' active':'')+'" data-n="'+n+'">'+(n===0 ? 'ไม่วอร์ม' : n+' เซ็ต')+'</button>'
+  ).join('');
+  chipsEl.querySelectorAll('.wu-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      wuState.setCount = parseInt(chip.dataset.n,10);
+      chipsEl.querySelectorAll('.wu-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      renderWarmupResult();
+    });
+  });
+
+  renderWarmupResult();
+  wuBackdrop.classList.add('open');
+  wuSheet.classList.add('open');
+}
+
+function renderWarmupResult(){
+  const resultEl = document.getElementById('wuResult');
+  if(wuState.setCount === 0){
+    resultEl.innerHTML = '<div class="wu-empty-note">ท่านี้ไม่จำเป็นต้องวอร์มอัพเพิ่ม — เริ่มเซ็ตทำงานได้เลย</div>';
+    return;
+  }
+  if(!wuState.weight){
+    resultEl.innerHTML = '<div class="wu-empty-note">กรอกน้ำหนักที่จะเล่นจริงก่อน เพื่อคำนวณน้ำหนักวอร์มอัพ</div>';
+    return;
+  }
+  const rows = computeWarmupRows(wuState.setCount, wuState.weight);
+  resultEl.innerHTML =
+    '<table class="wu-table">'
+    + '<tr><th>เซ็ต</th><th>% น้ำหนัก</th><th>น้ำหนัก</th><th>ครั้ง</th></tr>'
+    + rows.map(r=>'<tr><td>S'+r.idx+'</td><td class="wu-pct">~'+r.pct+'%</td><td class="wu-weight">'+r.weight+'</td><td>'+r.reps+'</td></tr>').join('')
+    + '</table>'
+    + '<button type="button" class="warmup-done-btn" id="warmupDoneBtn">✓ วอร์มอัพเสร็จแล้ว — เริ่มพัก 2 นาที</button>';
+  document.getElementById('warmupDoneBtn').addEventListener('click', ()=>{
+    closeWarmupSheet();
+    const label = wuCurrentEx ? (wuCurrentEx.n + ' · หลังวอร์มอัพ') : 'หลังวอร์มอัพ';
+    openTimerSheet(120, label);
+  });
+}
+
+function closeWarmupSheet(){
+  wuBackdrop.classList.remove('open');
+  wuSheet.classList.remove('open');
+}
+wuBackdrop.addEventListener('click', closeWarmupSheet);
+
+// ---------- Guideline reference sheet ----------
+const glBackdrop = document.getElementById('glBackdrop');
+const glSheet = document.getElementById('glSheet');
+function openGuidelineSheet(){
+  glBackdrop.classList.add('open');
+  glSheet.classList.add('open');
+}
+function closeGuidelineSheet(){
+  glBackdrop.classList.remove('open');
+  glSheet.classList.remove('open');
+}
+glBackdrop.addEventListener('click', closeGuidelineSheet);
+
+// ---------- Nutrition / calorie tracking ----------
+const FOOD_KEY = "nutrition:log";
+const NUTRI_TARGET = { kcal: 1825, protein: 155, fat: 50, carb: 180 };
+
+async function loadFoodEntries(){
+  return await loadEntries(FOOD_KEY);
+}
+
+async function renderNutritionView(main){
+  const entries = await loadFoodEntries();
+  const today = todayStr();
+  const todayEntries = entries.filter(e=> e.date === today);
+  const sortedAll = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
+
+  const sum = todayEntries.reduce((acc,e)=>{
+    acc.kcal += e.total.kcal||0;
+    acc.protein += e.total.protein||0;
+    acc.carb += e.total.carb||0;
+    acc.fat += e.total.fat||0;
+    return acc;
+  }, {kcal:0, protein:0, carb:0, fat:0});
+
+  function bar(val, target){
+    const pct = target ? Math.min(100, (val/target)*100) : 0;
+    const over = val > target;
+    return '<div class="macro-bar-track"><div class="macro-bar-fill'+(over?' over':'')+'" style="width:'+pct+'%"></div></div>';
+  }
+
+  main.innerHTML =
+    '<div class="section-label">วันนี้ ('+fmtDate(today)+')</div>'
+    + '<div class="macro-row">'
+    + '<div class="macro-box"><div class="macro-label">Kcal</div><div class="macro-val">'+Math.round(sum.kcal)+'</div><div class="macro-target">/ '+NUTRI_TARGET.kcal+'</div>'+bar(sum.kcal, NUTRI_TARGET.kcal)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Protein</div><div class="macro-val">'+Math.round(sum.protein)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.protein+'g</div>'+bar(sum.protein, NUTRI_TARGET.protein)+'</div>'
+    + '</div>'
+    + '<div class="macro-row">'
+    + '<div class="macro-box"><div class="macro-label">Carb</div><div class="macro-val">'+Math.round(sum.carb)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.carb+'g</div>'+bar(sum.carb, NUTRI_TARGET.carb)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">'+Math.round(sum.fat)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.fat+'g</div>'+bar(sum.fat, NUTRI_TARGET.fat)+'</div>'
+    + '</div>'
+    + '<div class="section-label">ประวัติมื้ออาหาร</div>'
+    + '<div id="mealList"></div>';
+
+  const list = document.getElementById('mealList');
+  if(!sortedAll.length){
+    list.innerHTML = '<div class="empty-hint">ยังไม่มีบันทึกมื้ออาหาร — กด "+ บันทึกมื้ออาหาร" เพื่อเริ่ม</div>';
+  } else {
+    let html = '';
+    let currentDate = null;
+    sortedAll.forEach(e=>{
+      if(e.date !== currentDate){
+        currentDate = e.date;
+        const dayTotal = sortedAll.filter(x=> x.date===currentDate).reduce((acc,x)=>{
+          acc.kcal += x.total.kcal||0; return acc;
+        }, {kcal:0});
+        const isToday = currentDate === today;
+        html += '<div class="day-divider'+(isToday?' is-today':'')+'"><span class="day-divider-date">'+(isToday?'วันนี้ · ':'')+fmtDate(currentDate)+'</span><span class="day-divider-total">รวม '+Math.round(dayTotal.kcal)+' kcal</span></div>';
+      }
+      const t = e.total;
+      const items = e.items || [];
+      html += '<div class="meal-card" data-id="'+e.id+'">'
+        + '<div class="meal-top">'
+        + '<div><div class="meal-name">'+escapeHtml(e.label || (e.method==='home'?'มื้อทำเอง':'มื้อนอกบ้าน'))+'</div></div>'
+        + '<div style="display:flex; align-items:flex-start;"><div class="meal-kcal">'+Math.round(t.kcal)+' kcal</div>'
+        + '<button class="meal-star-btn'+(e.favorite?' starred':'')+'" data-star="'+e.id+'">'+(e.favorite?'★':'☆')+'</button></div>'
+        + '</div>'
+        + '<div class="meal-macros">รวม: P '+Math.round(t.protein)+'g · C '+Math.round(t.carb)+'g · F '+Math.round(t.fat)+'g</div>'
+        + items.map(it=>'<div class="calc-item-row"><span>'+escapeHtml(it.name)+'</span><span>'+Math.round(it.kcal)+' kcal · P'+Math.round(it.protein||0)+' C'+Math.round(it.carb||0)+' F'+Math.round(it.fat||0)+'</span></div>').join('')
+        + '<span class="meal-method">'+(e.method==='home' ? '🏠 ทำกินเอง' : '📷 กินนอกบ้าน')+' · แตะเพื่อแก้ไข</span>'
+        + '</div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.meal-card').forEach(card=>{
+      card.addEventListener('click', (ev)=>{
+        if(ev.target.closest('[data-star]')) return;
+        const entry = entries.find(e=> String(e.id) === card.dataset.id);
+        if(entry) openFoodSheet(entry);
+      });
+    });
+    list.querySelectorAll('[data-star]').forEach(btn=>{
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
+        let all = await loadFoodEntries();
+        const idx = all.findIndex(e=> String(e.id) === btn.dataset.star);
+        if(idx>=0){
+          all[idx].favorite = !all[idx].favorite;
+          await saveEntries(FOOD_KEY, all);
+          renderMain();
+        }
+      });
+    });
+  }
+
+  const fab = document.createElement('button');
+  fab.className = 'fab';
+  fab.style.background = 'var(--food)';
+  fab.textContent = '+ บันทึกมื้ออาหาร';
+  fab.addEventListener('click', ()=> openFoodSheet(null));
+  main.appendChild(fab);
+}
+
+// ---- Food sheet state ----
+const foodBackdrop = document.getElementById('foodBackdrop');
+const foodSheet = document.getElementById('foodSheet');
+let foodMode = 'home';
+let foodPhotoBase64 = null;
+let foodPhotoMediaType = null;
+let lastCalcResult = null; // {items, total}
+let lastCalcIsEstimate = false;
+let lastInputSnapshot = null; // raw inputs used to produce lastCalcResult, for editing later
+let editingFoodId = null;
+
+function openFoodSheet(editEntry){
+  editingFoodId = editEntry ? editEntry.id : null;
+  foodMode = editEntry ? editEntry.method : 'home';
+  foodPhotoBase64 = (editEntry && editEntry.input && editEntry.input.photoBase64) || null;
+  foodPhotoMediaType = (editEntry && editEntry.input && editEntry.input.photoMediaType) || null;
+  lastCalcResult = editEntry ? { items: editEntry.items, total: editEntry.total } : null;
+  lastInputSnapshot = editEntry ? (editEntry.input || null) : null;
+
+  document.getElementById('foodDate').value = editEntry ? editEntry.date : todayStr();
+  document.getElementById('foodLabel').value = editEntry ? (editEntry.label||'') : '';
+  document.getElementById('foodDishName').value = (editEntry && editEntry.input && editEntry.input.dishName) || '';
+  document.getElementById('foodExtraNote').value = (editEntry && editEntry.input && editEntry.input.extraNote) || '';
+
+  if(foodPhotoBase64){
+    document.getElementById('photoDropZone').innerHTML = '<img src="data:'+foodPhotoMediaType+';base64,'+foodPhotoBase64+'" alt="food photo">';
+  } else {
+    document.getElementById('photoDropZone').innerHTML = '<div class="photo-drop-label" id="photoDropLabel">แตะเพื่อถ่ายรูป หรือเลือกรูปจากเครื่อง</div>';
+  }
+
+  setFoodMode(foodMode, true);
+
+  const ingContainer = document.getElementById('ingContainer');
+  ingContainer.innerHTML = '';
+  if(editEntry && editEntry.input && editEntry.input.ingredients && editEntry.input.ingredients.length){
+    editEntry.input.ingredients.forEach(ing=> addIngredientRow(ing));
+  } else {
+    addIngredientRow();
+    addIngredientRow();
+  }
+
+  if(lastCalcResult){
+    renderCalcResult(lastCalcResult, foodMode==='photo');
+  } else {
+    document.getElementById('calcResultWrap').innerHTML = '';
+  }
+
+  const saveBtn = document.getElementById('saveFoodBtn');
+  saveBtn.style.display = lastCalcResult ? 'block' : 'none';
+  saveBtn.textContent = editingFoodId ? 'บันทึกการแก้ไข' : 'บันทึกมื้อนี้';
+
+  let delBtn = document.getElementById('deleteFoodBtn');
+  if(editingFoodId){
+    if(!delBtn){
+      delBtn = document.createElement('button');
+      delBtn.id = 'deleteFoodBtn';
+      delBtn.className = 'timer-btn reset';
+      delBtn.style.width = '100%';
+      delBtn.style.marginTop = '4px';
+      delBtn.textContent = 'ลบมื้อนี้';
+      saveBtn.insertAdjacentElement('afterend', delBtn);
+    }
+    delBtn.style.display = 'block';
+    delBtn.onclick = async ()=>{
+      let all = await loadFoodEntries();
+      all = all.filter(e=> String(e.id) !== String(editingFoodId));
+      await saveEntries(FOOD_KEY, all);
+      closeFoodSheet();
+      showToast('ลบมื้ออาหารแล้ว');
+      renderMain();
+    };
+  } else if(delBtn){
+    delBtn.style.display = 'none';
+  }
+
+  // Favorite meal quick-fill chips (only when adding a brand-new meal)
+  const favMealWrap = document.getElementById('favMealChipsWrap');
+  if(!editingFoodId){
+    renderFavMealChips(favMealWrap);
+  } else {
+    favMealWrap.innerHTML = '';
+  }
+  renderFavIngredientChips();
+
+  foodBackdrop.classList.add('open');
+  foodSheet.classList.add('open');
+}
+function closeFoodSheet(){
+  foodBackdrop.classList.remove('open');
+  foodSheet.classList.remove('open');
+}
+foodBackdrop.addEventListener('click', closeFoodSheet);
+
+function setFoodMode(mode, keepResult){
+  foodMode = mode;
+  document.getElementById('modeHomeBtn').classList.toggle('active', mode==='home');
+  document.getElementById('modePhotoBtn').classList.toggle('active', mode==='photo');
+  document.getElementById('homeModeBlock').style.display = mode==='home' ? 'block' : 'none';
+  document.getElementById('photoModeBlock').style.display = mode==='photo' ? 'block' : 'none';
+  if(!keepResult){
+    document.getElementById('calcResultWrap').innerHTML = '';
+    document.getElementById('saveFoodBtn').style.display = 'none';
+    lastCalcResult = null;
+  }
+}
+document.getElementById('modeHomeBtn').addEventListener('click', ()=> setFoodMode('home'));
+document.getElementById('modePhotoBtn').addEventListener('click', ()=> setFoodMode('photo'));
+
+// ---- Favorite meals (quick re-fill) ----
+async function renderFavMealChips(wrapEl){
+  const entries = await loadFoodEntries();
+  const favs = entries.filter(e=> e.favorite);
+  // dedupe by label, keep most recent
+  const byLabel = {};
+  favs.forEach(e=>{
+    const key = e.label || (e.method==='home' ? 'มื้อทำเอง' : 'มื้อนอกบ้าน');
+    if(!byLabel[key] || byLabel[key].id < e.id) byLabel[key] = e;
+  });
+  const list = Object.values(byLabel).sort((a,b)=> b.id-a.id).slice(0,10);
+  if(!list.length){ wrapEl.innerHTML = ''; return; }
+  wrapEl.innerHTML =
+    '<span class="field-label">⭐ เมนูโปรด (แตะเพื่อกรอกอัตโนมัติ)</span>'
+    + '<div class="fav-chip-row">'
+    + list.map(e=> '<button type="button" class="fav-chip" data-fav-meal="'+e.id+'"><span class="fav-chip-star">★</span>'+escapeHtml(e.label || (e.method==='home'?'มื้อทำเอง':'มื้อนอกบ้าน'))+'</button>').join('')
+    + '</div>';
+  wrapEl.querySelectorAll('[data-fav-meal]').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const entry = list.find(e=> String(e.id) === chip.dataset.favMeal);
+      if(entry) applyFavMealTemplate(entry);
+    });
+  });
+}
+
+function applyFavMealTemplate(favEntry){
+  foodMode = favEntry.method;
+  foodPhotoBase64 = (favEntry.input && favEntry.input.photoBase64) || null;
+  foodPhotoMediaType = (favEntry.input && favEntry.input.photoMediaType) || null;
+  lastCalcResult = { items: JSON.parse(JSON.stringify(favEntry.items)), total: {...favEntry.total} };
+  lastInputSnapshot = favEntry.input ? JSON.parse(JSON.stringify(favEntry.input)) : null;
+
+  document.getElementById('foodLabel').value = favEntry.label || '';
+  document.getElementById('foodDishName').value = (favEntry.input && favEntry.input.dishName) || '';
+  document.getElementById('foodExtraNote').value = (favEntry.input && favEntry.input.extraNote) || '';
+
+  if(foodPhotoBase64){
+    document.getElementById('photoDropZone').innerHTML = '<img src="data:'+foodPhotoMediaType+';base64,'+foodPhotoBase64+'" alt="food photo">';
+  } else {
+    document.getElementById('photoDropZone').innerHTML = '<div class="photo-drop-label" id="photoDropLabel">แตะเพื่อถ่ายรูป หรือเลือกรูปจากเครื่อง</div>';
+  }
+
+  setFoodMode(foodMode, true);
+
+  const ingContainer = document.getElementById('ingContainer');
+  ingContainer.innerHTML = '';
+  if(lastInputSnapshot && lastInputSnapshot.ingredients && lastInputSnapshot.ingredients.length){
+    lastInputSnapshot.ingredients.forEach(ing=> addIngredientRow(ing));
+  } else {
+    addIngredientRow();
+  }
+
+  renderCalcResult(lastCalcResult, foodMode==='photo');
+  document.getElementById('saveFoodBtn').style.display = 'block';
+  showToast('กรอกจากเมนูโปรดแล้ว — ปรับแก้ได้ก่อนบันทึก');
+}
+
+// ---- Favorite ingredients (quick re-fill) ----
+const FAV_ING_KEY = "nutrition:fav-ingredients";
+async function loadFavIngredients(){
+  return await loadEntries(FAV_ING_KEY);
+}
+async function saveFavIngredient(ing){
+  let favs = await loadFavIngredients();
+  favs = favs.filter(f=> f.name.toLowerCase() !== ing.name.toLowerCase());
+  favs.unshift({ id: Date.now(), name: ing.name, weight: ing.weight, unit: ing.unit, manual: ing.manual });
+  favs = favs.slice(0, 20);
+  await saveEntries(FAV_ING_KEY, favs);
+}
+async function removeFavIngredient(id){
+  let favs = await loadFavIngredients();
+  favs = favs.filter(f=> String(f.id) !== String(id));
+  await saveEntries(FAV_ING_KEY, favs);
+}
+async function renderFavIngredientChips(){
+  const wrap = document.getElementById('favIngChipsWrap');
+  if(!wrap) return;
+  const favs = await loadFavIngredients();
+  if(!favs.length){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML =
+    '<div class="fav-chip-row" style="margin-top:2px;">'
+    + favs.map(f=> '<button type="button" class="fav-chip" data-fav-ing="'+f.id+'"><span class="fav-chip-star">★</span>'+escapeHtml(f.name)+'<span class="fav-chip-del" data-del-ing="'+f.id+'">✕</span></button>').join('')
+    + '</div>';
+  wrap.querySelectorAll('[data-fav-ing]').forEach(chip=>{
+    chip.addEventListener('click', (ev)=>{
+      if(ev.target.closest('[data-del-ing]')) return;
+      const f = favs.find(x=> String(x.id) === chip.dataset.favIng);
+      if(f) addIngredientRow(f);
+    });
+  });
+  wrap.querySelectorAll('[data-del-ing]').forEach(delBtn=>{
+    delBtn.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      await removeFavIngredient(delBtn.dataset.delIng);
+      renderFavIngredientChips();
+    });
+  });
+}
+
+function addIngredientRow(prefill){
+  prefill = prefill || {};
+  const container = document.getElementById('ingContainer');
+  const row = document.createElement('div');
+  row.className = 'ing-row';
+  const unit = prefill.unit || 'g';
+  const manual = prefill.manual || null;
+  row.innerHTML =
+    '<div class="ing-row-main">'
+    + '<input type="text" placeholder="ชื่อวัตถุดิบ เช่น อกไก่" class="ing-name" value="'+(prefill.name?escapeHtml(prefill.name):'')+'">'
+    + '<input type="number" inputmode="decimal" placeholder="ปริมาณ (ไม่รู้เว้นว่าง)" class="ing-weight" value="'+(prefill.weight?escapeHtml(String(prefill.weight)):'')+'">'
+    + '<select class="ing-unit">'
+    + '<option value="g"'+(unit==='g'?' selected':'')+'>g</option>'
+    + '<option value="ml"'+(unit==='ml'?' selected':'')+'>ml</option>'
+    + '<option value="oz"'+(unit==='oz'?' selected':'')+'>oz</option>'
+    + '</select>'
+    + '<button type="button" class="ing-fav-btn" title="บันทึกเป็นวัตถุดิบโปรด">☆</button>'
+    + '<button class="ing-del">✕</button>'
+    + '</div>'
+    + '<button type="button" class="ing-manual-toggle">'+(manual?'✓ ใส่สารอาหารจากฉลากแล้ว (แก้ไข)':'+ ใส่สารอาหารจากฉลาก (ถ้ารู้)')+'</button>'
+    + '<div class="ing-manual-fields" style="display:'+(manual?'flex':'none')+';">'
+    + '<div class="field-mini"><label>KCAL (auto)</label><input type="number" class="ing-m-kcal" value="'+(manual?manual.kcal:'')+'"></div>'
+    + '<div class="field-mini"><label>P (g)</label><input type="number" class="ing-m-protein" value="'+(manual?manual.protein:'')+'"></div>'
+    + '<div class="field-mini"><label>C (g)</label><input type="number" class="ing-m-carb" value="'+(manual?manual.carb:'')+'"></div>'
+    + '<div class="field-mini"><label>F (g)</label><input type="number" class="ing-m-fat" value="'+(manual?manual.fat:'')+'"></div>'
+    + '</div>';
+  row.querySelector('.ing-del').addEventListener('click', ()=> row.remove());
+  row.querySelector('.ing-fav-btn').addEventListener('click', async (ev)=>{
+    const name = row.querySelector('.ing-name').value.trim();
+    if(!name){ showToast('ใส่ชื่อวัตถุดิบก่อนบันทึกโปรด'); return; }
+    const weight = row.querySelector('.ing-weight').value;
+    const unitVal = row.querySelector('.ing-unit').value;
+    const mKcal = row.querySelector('.ing-m-kcal').value;
+    const mProtein = row.querySelector('.ing-m-protein').value;
+    const mCarb = row.querySelector('.ing-m-carb').value;
+    const mFat = row.querySelector('.ing-m-fat').value;
+    const hasManual = mKcal !== '' && mProtein !== '' && mCarb !== '' && mFat !== '';
+    const manualData = hasManual ? {kcal:parseFloat(mKcal)||0, protein:parseFloat(mProtein)||0, carb:parseFloat(mCarb)||0, fat:parseFloat(mFat)||0} : null;
+    await saveFavIngredient({ name, weight: weight||null, unit: unitVal, manual: manualData });
+    ev.target.textContent = '★';
+    ev.target.classList.add('starred');
+    showToast('บันทึกวัตถุดิบโปรดแล้ว ★');
+    renderFavIngredientChips();
+  });
+  const toggleBtn = row.querySelector('.ing-manual-toggle');
+  const fieldsDiv = row.querySelector('.ing-manual-fields');
+  toggleBtn.addEventListener('click', ()=>{
+    const showing = fieldsDiv.style.display === 'flex';
+    fieldsDiv.style.display = showing ? 'none' : 'flex';
+    toggleBtn.textContent = showing ? '+ ใส่สารอาหารจากฉลาก (ถ้ารู้)' : '− ซ่อนช่องสารอาหาร';
+  });
+  const mKcalInput = row.querySelector('.ing-m-kcal');
+  const mProteinInput = row.querySelector('.ing-m-protein');
+  const mCarbInput = row.querySelector('.ing-m-carb');
+  const mFatInput = row.querySelector('.ing-m-fat');
+  [mProteinInput, mCarbInput, mFatInput].forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      if(mProteinInput.value !== '' || mCarbInput.value !== '' || mFatInput.value !== ''){
+        mKcalInput.value = kcalFromMacros(mProteinInput.value, mCarbInput.value, mFatInput.value);
+      }
+    });
+  });
+  container.appendChild(row);
+}
+document.getElementById('addIngBtn').addEventListener('click', ()=> addIngredientRow());
+
+document.getElementById('directSaveBtn').addEventListener('click', async ()=>{
+  const rows = document.querySelectorAll('#ingContainer .ing-row');
+  const items = [];
+  let missing = 0;
+  rows.forEach(r=>{
+    const name = r.querySelector('.ing-name').value.trim();
+    if(!name) return;
+    const mKcal = r.querySelector('.ing-m-kcal').value;
+    const mProtein = r.querySelector('.ing-m-protein').value;
+    const mCarb = r.querySelector('.ing-m-carb').value;
+    const mFat = r.querySelector('.ing-m-fat').value;
+    const hasManual = mKcal !== '' && mProtein !== '' && mCarb !== '' && mFat !== '';
+    if(!hasManual){ missing++; return; }
+    const weight = r.querySelector('.ing-weight').value;
+    const unitVal = r.querySelector('.ing-unit').value;
+    items.push({
+      name: name + (weight ? ' ('+weight+' '+unitVal+', จากฉลาก)' : ' (จากฉลาก)'),
+      kcal: parseFloat(mKcal)||0, protein: parseFloat(mProtein)||0,
+      carb: parseFloat(mCarb)||0, fat: parseFloat(mFat)||0
+    });
+  });
+  if(!items.length){
+    showToast('กรอกวัตถุดิบพร้อมสารอาหารจากฉลากอย่างน้อย 1 อย่าง');
+    return;
+  }
+  if(missing > 0){
+    showToast('มี '+missing+' วัตถุดิบที่ยังไม่ได้กรอกสารอาหารครบ — กรอกให้ครบหรือใช้ปุ่ม "คำนวณแคล" แทน');
+    return;
+  }
+  const total = items.reduce((acc,it)=>{
+    acc.kcal += it.kcal; acc.protein += it.protein; acc.carb += it.carb; acc.fat += it.fat;
+    return acc;
+  }, {kcal:0, protein:0, carb:0, fat:0});
+
+  const date = document.getElementById('foodDate').value || todayStr();
+  const label = document.getElementById('foodLabel').value.trim();
+  const inputSnapshot = { ingredients: Array.from(rows).map(r=>{
+    const name = r.querySelector('.ing-name').value.trim();
+    const weight = r.querySelector('.ing-weight').value;
+    const unitVal = r.querySelector('.ing-unit').value;
+    const mKcal = r.querySelector('.ing-m-kcal').value;
+    const mProtein = r.querySelector('.ing-m-protein').value;
+    const mCarb = r.querySelector('.ing-m-carb').value;
+    const mFat = r.querySelector('.ing-m-fat').value;
+    const hasManual = mKcal !== '' && mProtein !== '' && mCarb !== '' && mFat !== '';
+    return { name, weight: weight||null, unit: unitVal, manual: hasManual ? {kcal:parseFloat(mKcal)||0, protein:parseFloat(mProtein)||0, carb:parseFloat(mCarb)||0, fat:parseFloat(mFat)||0} : null };
+  }).filter(i=>i.name) };
+
+  let entries = await loadFoodEntries();
+  const entryData = {
+    id: editingFoodId || Date.now(),
+    date, label, method: 'home',
+    input: inputSnapshot,
+    items, total,
+  };
+  if(editingFoodId){
+    const idx = entries.findIndex(e=> String(e.id) === String(editingFoodId));
+    if(idx>=0) entries[idx] = entryData; else entries.push(entryData);
+  } else {
+    entries.push(entryData);
+  }
+  await saveEntries(FOOD_KEY, entries);
+  closeFoodSheet();
+  showToast('บันทึกมื้ออาหารแล้ว ✓');
+  renderMain();
+});
+
+
+// Photo capture
+const photoInput = document.getElementById('foodPhotoInput');
+document.getElementById('photoDropZone').addEventListener('click', ()=> photoInput.click());
+photoInput.addEventListener('change', ()=>{
+  const file = photoInput.files[0];
+  if(!file) return;
+  foodPhotoMediaType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    foodPhotoBase64 = reader.result.split(',')[1];
+    const zone = document.getElementById('photoDropZone');
+    zone.innerHTML = '<img src="'+reader.result+'" alt="food photo">';
+  };
+  reader.onerror = ()=> showToast('อ่านรูปไม่สำเร็จ');
+  reader.readAsDataURL(file);
+});
+
+// ---- Claude API calls ----
+async function callClaudeAPI(messages){
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      messages: messages,
+    })
+  });
+  const data = await response.json();
+  const textBlocks = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text);
+  return textBlocks.join('\n');
+}
+
+function parseNutritionJson(text){
+  let clean = text.replace(/```json/g,'').replace(/```/g,'').trim();
+  const firstBrace = clean.indexOf('{');
+  const lastBrace = clean.lastIndexOf('}');
+  if(firstBrace>=0 && lastBrace>=0) clean = clean.substring(firstBrace, lastBrace+1);
+  return JSON.parse(clean);
+}
+
+document.getElementById('calcCalBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('calcCalBtn');
+  const resultWrap = document.getElementById('calcResultWrap');
+  const saveBtn = document.getElementById('saveFoodBtn');
+
+  if(foodMode === 'home'){
+    const rows = document.querySelectorAll('#ingContainer .ing-row');
+    const items = [];
+    rows.forEach(r=>{
+      const name = r.querySelector('.ing-name').value.trim();
+      const weight = r.querySelector('.ing-weight').value;
+      const unit = r.querySelector('.ing-unit').value;
+      const mKcal = r.querySelector('.ing-m-kcal').value;
+      const mProtein = r.querySelector('.ing-m-protein').value;
+      const mCarb = r.querySelector('.ing-m-carb').value;
+      const mFat = r.querySelector('.ing-m-fat').value;
+      const hasManual = mKcal !== '' && mProtein !== '' && mCarb !== '' && mFat !== '';
+      const manual = hasManual ? {
+        kcal: parseFloat(mKcal)||0, protein: parseFloat(mProtein)||0,
+        carb: parseFloat(mCarb)||0, fat: parseFloat(mFat)||0
+      } : null;
+      if(name) items.push({name, weight: weight || null, unit, manual});
+    });
+    if(!items.length){
+      showToast('กรอกวัตถุดิบอย่างน้อย 1 อย่าง');
+      return;
+    }
+    lastInputSnapshot = { ingredients: items };
+
+    const manualItems = items.filter(i=> i.manual).map(i=> ({
+      name: i.name + (i.weight ? ' ('+i.weight+' '+i.unit+', จากฉลาก)' : ' (จากฉลาก)'),
+      kcal: i.manual.kcal, protein: i.manual.protein, carb: i.manual.carb, fat: i.manual.fat
+    }));
+    const needCalcItems = items.filter(i=> !i.manual);
+
+    if(needCalcItems.length === 0){
+      // all manual — no API call needed
+      const total = manualItems.reduce((acc,it)=>{
+        acc.kcal += it.kcal; acc.protein += it.protein; acc.carb += it.carb; acc.fat += it.fat;
+        return acc;
+      }, {kcal:0, protein:0, carb:0, fat:0});
+      lastCalcResult = { items: manualItems, total };
+      renderCalcResult(lastCalcResult, false);
+      saveBtn.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>กำลังคำนวณ...';
+    resultWrap.innerHTML = '';
+    saveBtn.style.display = 'none';
+    try{
+      const ingList = needCalcItems.map(i=> i.weight ? (i.name + ' ' + i.weight + ' ' + i.unit) : (i.name + ' (ไม่ทราบปริมาณ — ประมาณจากปริมาณทั่วไปที่คนไทยกินต่อจาน)')).join(', ');
+      const prompt = 'คำนวณแคลอรี่และสารอาหาร (โปรตีน คาร์บ ไขมัน) จากวัตถุดิบต่อไปนี้ หน่วยอาจเป็นกรัม (g), มิลลิลิตร (ml) หรือออนซ์ (oz) ถ้าระบุปริมาณมาให้ใช้ปริมาณนั้นคำนวณตรงๆ ถ้าไม่ได้ระบุให้ประมาณปริมาณที่สมเหตุสมผลในมื้ออาหารทั่วไปเองแล้วคำนวณจากค่านั้น แยกคำนวณทีละวัตถุดิบ ตอบเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือจาก JSON รูปแบบต้องเป็น: {"items":[{"name":"ชื่อวัตถุดิบ (ระบุปริมาณที่ใช้คำนวณด้วยถ้าเป็นการประมาณ)","kcal":number,"protein":number,"carb":number,"fat":number}],"total":{"kcal":number,"protein":number,"carb":number,"fat":number}} วัตถุดิบ: ' + ingList;
+      const text = await callClaudeAPI([{role:"user", content: prompt}]);
+      const parsed = parseNutritionJson(text);
+      const apiItems = parsed.items || [];
+      const combinedItems = manualItems.concat(apiItems);
+      const combinedTotal = combinedItems.reduce((acc,it)=>{
+        acc.kcal += it.kcal||0; acc.protein += it.protein||0; acc.carb += it.carb||0; acc.fat += it.fat||0;
+        return acc;
+      }, {kcal:0, protein:0, carb:0, fat:0});
+      lastCalcResult = { items: combinedItems, total: combinedTotal };
+      const anyEstimated = needCalcItems.some(i=>!i.weight);
+      renderCalcResult(lastCalcResult, anyEstimated);
+      saveBtn.style.display = 'block';
+    }catch(e){
+      console.error(e);
+      resultWrap.innerHTML = '<div class="wu-empty-note">คำนวณไม่สำเร็จ ลองใหม่อีกครั้ง</div>';
+    }
+    btn.disabled = false;
+    btn.textContent = 'คำนวณแคล';
+
+  } else {
+    const dishName = document.getElementById('foodDishName').value.trim();
+    const extraNote = document.getElementById('foodExtraNote').value.trim();
+    if(!foodPhotoBase64 && !dishName){
+      showToast('ถ่ายรูป หรือพิมพ์ชื่อเมนูอย่างน้อย 1 อย่าง');
+      return;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>กำลังคำนวณ...';
+    resultWrap.innerHTML = '';
+    saveBtn.style.display = 'none';
+    try{
+      let parsed;
+      if(foodPhotoBase64){
+        let promptText = 'ประเมินแคลอรี่และสารอาหาร (โปรตีน คาร์บ ไขมัน) ของอาหารในรูปนี้ โดยพิจารณาจากลักษณะอาหารที่เห็นและปริมาณโดยประมาณต่อ 1 จาน/ชุดที่เห็นในรูป แยกประเมินทีละส่วนประกอบหลักของจาน';
+        if(dishName) promptText += ' เมนูนี้คือ: ' + dishName;
+        if(extraNote) promptText += ' รายละเอียดเพิ่มเติม: ' + extraNote;
+        promptText += ' ตอบเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือจาก JSON รูปแบบต้องเป็น: {"items":[{"name":"ส่วนประกอบที่ประเมิน","kcal":number,"protein":number,"carb":number,"fat":number}],"total":{"kcal":number,"protein":number,"carb":number,"fat":number}}';
+        const messages = [{
+          role: "user",
+          content: [
+            { type:"image", source:{ type:"base64", media_type: foodPhotoMediaType, data: foodPhotoBase64 } },
+            { type:"text", text: promptText }
+          ]
+        }];
+        const text = await callClaudeAPI(messages);
+        parsed = parseNutritionJson(text);
+      } else {
+        let promptText = 'ประเมินแคลอรี่และสารอาหาร (โปรตีน คาร์บ ไขมัน) ของเมนูอาหารนอกบ้านต่อไปนี้ สำหรับ 1 จาน/ชุดตามที่ร้านทั่วไปเสิร์ฟ แยกประเมินทีละส่วนประกอบหลักของจาน ชื่อเมนู: ' + dishName;
+        if(extraNote) promptText += ' รายละเอียดเพิ่มเติม: ' + extraNote;
+        promptText += ' ตอบเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือจาก JSON รูปแบบต้องเป็น: {"items":[{"name":"ส่วนประกอบที่ประเมิน","kcal":number,"protein":number,"carb":number,"fat":number}],"total":{"kcal":number,"protein":number,"carb":number,"fat":number}}';
+        const text = await callClaudeAPI([{role:"user", content: promptText}]);
+        parsed = parseNutritionJson(text);
+      }
+      lastCalcResult = parsed;
+      lastInputSnapshot = { dishName, extraNote, photoBase64: foodPhotoBase64, photoMediaType: foodPhotoMediaType };
+      renderCalcResult(parsed, true);
+      saveBtn.style.display = 'block';
+    }catch(e){
+      console.error(e);
+      resultWrap.innerHTML = '<div class="wu-empty-note">คำนวณไม่สำเร็จ ลองใหม่อีกครั้ง</div>';
+    }
+    btn.disabled = false;
+    btn.textContent = 'คำนวณแคล';
+  }
+});
+
+function renderCalcResult(result, isEstimate){
+  lastCalcResult = result;
+  lastCalcIsEstimate = !!isEstimate;
+  const wrap = document.getElementById('calcResultWrap');
+  wrap.innerHTML =
+    '<div class="calc-result">'
+    + '<div class="calc-result-total" id="calcTotalDisplay"></div>'
+    + '<div class="meal-macros" id="calcMacroDisplay"></div>'
+    + (isEstimate ? '<div class="calc-disclaimer">เป็นการประมาณ อาจคลาดเคลื่อนได้ — แก้ไขตัวเลขด้านล่างได้โดยตรงถ้าทราบค่าจริง</div>' : '')
+    + '<div class="section-label" style="margin:10px 0 4px;">แยกตามวัตถุดิบ (แก้ไขได้)</div>'
+    + '<div id="calcItemsWrap"></div>'
+    + '<button type="button" class="add-item-btn" id="addCalcItemBtn">+ เพิ่มรายการ</button>'
+    + '</div>';
+  document.getElementById('addCalcItemBtn').addEventListener('click', ()=>{
+    lastCalcResult.items.push({name:'', kcal:0, protein:0, carb:0, fat:0});
+    renderCalcItemsList();
+  });
+  renderCalcItemsList();
+}
+
+function renderCalcItemsList(){
+  const itemsWrap = document.getElementById('calcItemsWrap');
+  const items = lastCalcResult.items || [];
+  itemsWrap.innerHTML = items.map((it,idx)=>
+    '<div class="calc-item-edit" data-idx="'+idx+'">'
+    + '<div class="calc-item-edit-top">'
+    + '<input type="text" class="ci-name" placeholder="ชื่อวัตถุดิบ" value="'+escapeHtml(it.name||'')+'">'
+    + '<button type="button" class="calc-item-edit-del">✕</button>'
+    + '</div>'
+    + '<div class="calc-item-edit-nums">'
+    + '<div class="field-mini"><label>KCAL (auto)</label><input type="number" class="ci-kcal" value="'+(it.kcal||0)+'"></div>'
+    + '<div class="field-mini"><label>P (g)</label><input type="number" class="ci-protein" value="'+(it.protein||0)+'"></div>'
+    + '<div class="field-mini"><label>C (g)</label><input type="number" class="ci-carb" value="'+(it.carb||0)+'"></div>'
+    + '<div class="field-mini"><label>F (g)</label><input type="number" class="ci-fat" value="'+(it.fat||0)+'"></div>'
+    + '</div>'
+    + '</div>'
+  ).join('');
+
+  itemsWrap.querySelectorAll('.calc-item-edit').forEach(card=>{
+    const idx = parseInt(card.dataset.idx,10);
+    const kcalInput = card.querySelector('.ci-kcal');
+    const proteinInput = card.querySelector('.ci-protein');
+    const carbInput = card.querySelector('.ci-carb');
+    const fatInput = card.querySelector('.ci-fat');
+    card.querySelector('.ci-name').addEventListener('input', (e)=>{ lastCalcResult.items[idx].name = e.target.value; });
+    kcalInput.addEventListener('input', (e)=>{ lastCalcResult.items[idx].kcal = parseFloat(e.target.value)||0; updateCalcTotals(); });
+    function recalcFromMacros(){
+      const kcal = kcalFromMacros(proteinInput.value, carbInput.value, fatInput.value);
+      kcalInput.value = kcal;
+      lastCalcResult.items[idx].kcal = kcal;
+      updateCalcTotals();
+    }
+    proteinInput.addEventListener('input', (e)=>{ lastCalcResult.items[idx].protein = parseFloat(e.target.value)||0; recalcFromMacros(); });
+    carbInput.addEventListener('input', (e)=>{ lastCalcResult.items[idx].carb = parseFloat(e.target.value)||0; recalcFromMacros(); });
+    fatInput.addEventListener('input', (e)=>{ lastCalcResult.items[idx].fat = parseFloat(e.target.value)||0; recalcFromMacros(); });
+    card.querySelector('.calc-item-edit-del').addEventListener('click', ()=>{
+      lastCalcResult.items.splice(idx,1);
+      renderCalcItemsList();
+      updateCalcTotals();
+    });
+  });
+  updateCalcTotals();
+}
+
+function updateCalcTotals(){
+  const items = lastCalcResult.items || [];
+  const total = items.reduce((acc,it)=>{
+    acc.kcal += it.kcal||0; acc.protein += it.protein||0; acc.carb += it.carb||0; acc.fat += it.fat||0;
+    return acc;
+  }, {kcal:0, protein:0, carb:0, fat:0});
+  lastCalcResult.total = total;
+  const totalEl = document.getElementById('calcTotalDisplay');
+  const macroEl = document.getElementById('calcMacroDisplay');
+  if(totalEl) totalEl.textContent = Math.round(total.kcal) + ' kcal';
+  if(macroEl) macroEl.textContent = 'รวม: P ' + Math.round(total.protein) + 'g · C ' + Math.round(total.carb) + 'g · F ' + Math.round(total.fat) + 'g';
+}
+
+document.getElementById('saveFoodBtn').addEventListener('click', async ()=>{
+  if(!lastCalcResult) return;
+  const date = document.getElementById('foodDate').value || todayStr();
+  const label = document.getElementById('foodLabel').value.trim();
+  let entries = await loadFoodEntries();
+  const entryData = {
+    id: editingFoodId || Date.now(),
+    date,
+    label,
+    method: foodMode,
+    input: lastInputSnapshot || {},
+    items: lastCalcResult.items || [],
+    total: lastCalcResult.total || {kcal:0,protein:0,carb:0,fat:0},
+  };
+  if(editingFoodId){
+    const idx = entries.findIndex(e=> String(e.id) === String(editingFoodId));
+    if(idx>=0) entries[idx] = entryData; else entries.push(entryData);
+  } else {
+    entries.push(entryData);
+  }
+  await saveEntries(FOOD_KEY, entries);
+  closeFoodSheet();
+  showToast(editingFoodId ? 'แก้ไขมื้ออาหารแล้ว ✓' : 'บันทึกมื้ออาหารแล้ว ✓');
+  renderMain();
+});
+
+// ---------- Backup / Restore ----------
+const backupBackdrop = document.getElementById('backupBackdrop');
+const backupSheet = document.getElementById('backupSheet');
+document.getElementById('backupBtn').addEventListener('click', ()=>{
+  backupBackdrop.classList.add('open');
+  backupSheet.classList.add('open');
+});
+backupBackdrop.addEventListener('click', ()=>{
+  backupBackdrop.classList.remove('open');
+  backupSheet.classList.remove('open');
+});
+
+function getAllStorageKeys(){
+  const keys = [];
+  Object.keys(DATA).forEach(cat=> DATA[cat].forEach(ex=> keys.push('entries:' + slug(cat, ex.n))));
+  Object.keys(PROGRAM2_DATA).forEach(cat=> PROGRAM2_DATA[cat].forEach(ex=> keys.push(storageId('p2', cat, ex.n))));
+  keys.push(RUN_KEY, FOOD_KEY, FAV_ING_KEY);
+  return keys;
+}
+
+async function performExport(btn, labelIdle, labelBusy){
+  if(btn){ btn.disabled = true; btn.textContent = labelBusy; }
+  try{
+    const keys = getAllStorageKeys();
+    const dataObj = {};
+    for(const k of keys){
+      dataObj[k] = await loadEntries(k);
+    }
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const payload = { version: 1, exportedAt: now.toISOString(), data: dataObj };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'loadline-backup-' + todayStr() + '-' + hh + mm + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('บันทึกข้อมูลสำรองแล้ว ✓ ดาวน์โหลดไฟล์เรียบร้อย');
+  }catch(e){
+    console.error(e);
+    showToast('บันทึกสำรองไม่สำเร็จ ลองใหม่อีกครั้ง');
+  }
+  if(btn){ btn.disabled = false; btn.textContent = labelIdle; }
+}
+
+document.getElementById('exportDataBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('exportDataBtn');
+  performExport(btn, 'ดาวน์โหลดไฟล์สำรอง', 'กำลังรวบรวมข้อมูล...');
+});
+
+document.getElementById('quickSaveBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('quickSaveBtn');
+  performExport(btn, '💾 บันทึกข้อมูลสำรองตอนนี้', 'กำลังบันทึก...');
+});
+
+const importFileInput = document.getElementById('importFileInput');
+document.getElementById('importDataBtn').addEventListener('click', ()=> importFileInput.click());
+importFileInput.addEventListener('change', async ()=>{
+  const file = importFileInput.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const dataObj = payload.data || payload;
+    const keys = Object.keys(dataObj);
+    if(!keys.length){
+      showToast('ไฟล์นี้ไม่มีข้อมูล');
+      return;
+    }
+    for(const k of keys){
+      await saveEntries(k, dataObj[k]);
+    }
+    showToast('นำเข้าข้อมูลสำเร็จ ✓ (' + keys.length + ' รายการ)');
+    backupBackdrop.classList.remove('open');
+    backupSheet.classList.remove('open');
+    renderMain();
+  }catch(e){
+    console.error(e);
+    showToast('ไฟล์ไม่ถูกต้อง หรืออ่านไม่สำเร็จ');
+  }
+  importFileInput.value = '';
+});
+
+renderTimerPresets();
+updateTimerDisplay();
+renderProgramSwitch();
+renderTabs();
+renderMain();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=> console.error('SW registration failed', e));
+  });
+}
+</script>
+</body>
+</html>
