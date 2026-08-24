@@ -762,6 +762,34 @@
     background:var(--food-dim); border-color:var(--food); color:var(--text);
   }
   .macro-row{display:flex; gap:8px; margin-bottom:10px;}
+  .day-type-row{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;
+  }
+  .day-type-chip{
+    flex:0 0 auto; padding:9px 14px; border-radius:20px;
+    border:1px solid var(--line); background:var(--surface); color:var(--muted);
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+  .day-type-chip.active{
+    background:var(--food-dim); border-color:var(--food); color:var(--text);
+  }
+  .activity-bonus-row{
+    display:flex; gap:10px; margin-bottom:8px;
+  }
+  .activity-bonus-row .field-mini{flex:1;}
+  .activity-bonus-row label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted);
+    display:block; margin-bottom:4px;
+  }
+  .activity-bonus-row input{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:6px; padding:9px; color:var(--text);
+    font-family:'JetBrains Mono',monospace; font-size:14px; text-align:center;
+  }
+  .day-target-note{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--food);
+    margin-bottom:16px;
+  }
   .macro-box{
     flex:1; background:var(--surface); border:1px solid var(--line);
     border-radius:6px; padding:10px 8px; text-align:center;
@@ -2508,7 +2536,49 @@ glBackdrop.addEventListener('click', closeGuidelineSheet);
 
 // ---------- Nutrition / calorie tracking ----------
 const FOOD_KEY = "nutrition:log";
-const NUTRI_TARGET = { kcal: 1825, protein: 155, fat: 50, carb: 180 };
+const DAY_CONTEXT_KEY = "nutrition:today-context";
+const NUTRI_TARGET = { kcal: 1825, protein: 155, fat: 50, carb: 180 }; // fallback before a day type is chosen
+const NUTRI_BASE_TARGETS = {
+  training: { kcal: 1950, protein: 155, carb: 220, fat: 50 },
+  rest:     { kcal: 1600, protein: 155, carb: 130, fat: 50 },
+};
+// kcal/min derived from this user's InBody-estimated exercise expenditure (30-min figures)
+const ACTIVITY_KCAL_PER_MIN = { run: 267/30, badminton: 173/30 };
+const DAY_TYPE_OPTIONS = [
+  {key:'Upper', label:'Upper', kind:'training'},
+  {key:'Lower', label:'Lower', kind:'training'},
+  {key:'Push', label:'Push', kind:'training'},
+  {key:'Pull', label:'Pull', kind:'training'},
+  {key:'Arms', label:'Arms', kind:'training'},
+  {key:'rest', label:'พักวันนี้', kind:'rest'},
+];
+
+async function loadDayContext(){
+  const raw = await loadEntries(DAY_CONTEXT_KEY);
+  const today = todayStr();
+  if(!raw || Array.isArray(raw) || raw.date !== today){
+    return { date: today, dayType: null, runMin: 0, badmintonMin: 0 };
+  }
+  return raw;
+}
+async function saveDayContext(ctx){
+  await saveEntries(DAY_CONTEXT_KEY, ctx);
+}
+
+function computeTodayTarget(ctx){
+  if(!ctx || !ctx.dayType) return NUTRI_TARGET;
+  const opt = DAY_TYPE_OPTIONS.find(o=> o.key === ctx.dayType);
+  const base = (opt && opt.kind==='rest') ? NUTRI_BASE_TARGETS.rest : NUTRI_BASE_TARGETS.training;
+  const runKcal = (parseFloat(ctx.runMin)||0) * ACTIVITY_KCAL_PER_MIN.run;
+  const badKcal = (parseFloat(ctx.badmintonMin)||0) * ACTIVITY_KCAL_PER_MIN.badminton;
+  const bonusKcal = runKcal + badKcal;
+  return {
+    kcal: Math.round(base.kcal + bonusKcal),
+    protein: base.protein,
+    carb: Math.round(base.carb + bonusKcal/4),
+    fat: base.fat,
+  };
+}
 
 async function loadFoodEntries(){
   return await loadEntries(FOOD_KEY);
@@ -2519,6 +2589,8 @@ async function renderNutritionView(main){
   const today = todayStr();
   const todayEntries = entries.filter(e=> e.date === today);
   const sortedAll = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
+  const dayCtx = await loadDayContext();
+  const target = computeTodayTarget(dayCtx);
 
   const sum = todayEntries.reduce((acc,e)=>{
     acc.kcal += e.total.kcal||0;
@@ -2534,18 +2606,50 @@ async function renderNutritionView(main){
     return '<div class="macro-bar-track"><div class="macro-bar-fill'+(over?' over':'')+'" style="width:'+pct+'%"></div></div>';
   }
 
+  const dayTypeChips = DAY_TYPE_OPTIONS.map(o=>
+    '<button type="button" class="day-type-chip'+(dayCtx.dayType===o.key?' active':'')+'" data-day-type="'+o.key+'">'+o.label+'</button>'
+  ).join('');
+
   main.innerHTML =
-    '<div class="section-label">วันนี้ ('+fmtDate(today)+')</div>'
+    '<div class="section-label">วันนี้เล่นตารางอะไร</div>'
+    + '<div class="day-type-row" id="dayTypeRow">'+dayTypeChips+'</div>'
+    + '<div class="activity-bonus-row">'
+    + '<div class="field-mini"><label>🏃 วิ่ง (นาที)</label><input type="number" inputmode="numeric" id="runMinInput" value="'+(dayCtx.runMin||'')+'" placeholder="0"></div>'
+    + '<div class="field-mini"><label>🏸 ตีแบต (นาที)</label><input type="number" inputmode="numeric" id="badmintonMinInput" value="'+(dayCtx.badmintonMin||'')+'" placeholder="0"></div>'
+    + '</div>'
+    + (dayCtx.dayType ? '<div class="day-target-note">เป้าหมายวันนี้: '+(DAY_TYPE_OPTIONS.find(o=>o.key===dayCtx.dayType).kind==='rest'?'วันพัก':'วันเทรน')+(((parseFloat(dayCtx.runMin)||0)+(parseFloat(dayCtx.badmintonMin)||0))>0 ? ' + กิจกรรมเสริม' : '')+'</div>' : '<div class="day-target-note">ยังไม่ได้เลือก — ใช้ค่าเฉลี่ยเริ่มต้นไปก่อน</div>')
+    + '<div class="section-label">วันนี้ ('+fmtDate(today)+')</div>'
     + '<div class="macro-row">'
-    + '<div class="macro-box"><div class="macro-label">Kcal</div><div class="macro-val">'+Math.round(sum.kcal)+'</div><div class="macro-target">/ '+NUTRI_TARGET.kcal+'</div>'+bar(sum.kcal, NUTRI_TARGET.kcal)+'</div>'
-    + '<div class="macro-box"><div class="macro-label">Protein</div><div class="macro-val">'+Math.round(sum.protein)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.protein+'g</div>'+bar(sum.protein, NUTRI_TARGET.protein)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Kcal</div><div class="macro-val">'+Math.round(sum.kcal)+'</div><div class="macro-target">/ '+target.kcal+'</div>'+bar(sum.kcal, target.kcal)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Protein</div><div class="macro-val">'+Math.round(sum.protein)+'g</div><div class="macro-target">/ '+target.protein+'g</div>'+bar(sum.protein, target.protein)+'</div>'
     + '</div>'
     + '<div class="macro-row">'
-    + '<div class="macro-box"><div class="macro-label">Carb</div><div class="macro-val">'+Math.round(sum.carb)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.carb+'g</div>'+bar(sum.carb, NUTRI_TARGET.carb)+'</div>'
-    + '<div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">'+Math.round(sum.fat)+'g</div><div class="macro-target">/ '+NUTRI_TARGET.fat+'g</div>'+bar(sum.fat, NUTRI_TARGET.fat)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Carb</div><div class="macro-val">'+Math.round(sum.carb)+'g</div><div class="macro-target">/ '+target.carb+'g</div>'+bar(sum.carb, target.carb)+'</div>'
+    + '<div class="macro-box"><div class="macro-label">Fat</div><div class="macro-val">'+Math.round(sum.fat)+'g</div><div class="macro-target">/ '+target.fat+'g</div>'+bar(sum.fat, target.fat)+'</div>'
     + '</div>'
     + '<div class="section-label">ประวัติมื้ออาหาร</div>'
     + '<div id="mealList"></div>';
+
+  document.getElementById('dayTypeRow').querySelectorAll('[data-day-type]').forEach(chip=>{
+    chip.addEventListener('click', async ()=>{
+      dayCtx.dayType = chip.dataset.dayType;
+      dayCtx.date = today;
+      await saveDayContext(dayCtx);
+      renderMain();
+    });
+  });
+  document.getElementById('runMinInput').addEventListener('change', async (e)=>{
+    dayCtx.runMin = e.target.value;
+    dayCtx.date = today;
+    await saveDayContext(dayCtx);
+    renderMain();
+  });
+  document.getElementById('badmintonMinInput').addEventListener('change', async (e)=>{
+    dayCtx.badmintonMin = e.target.value;
+    dayCtx.date = today;
+    await saveDayContext(dayCtx);
+    renderMain();
+  });
 
   const list = document.getElementById('mealList');
   if(!sortedAll.length){
