@@ -2198,7 +2198,8 @@ function renderDayDetail(dateStr, info){
 
 // ---------- Global Rest Timer ----------
 const TIMER_PRESETS = [60, 90, 120, 150, 180, 210, 240, 300]; // seconds
-let timerState = { remaining: 90, running:false, intervalId:null };
+let timerState = { remaining: 90, running:false, intervalId:null, finishTimeoutId:null, endAt:null };
+let notifPermissionAsked = false;
 
 const timerFabBtn = document.getElementById('timerFabBtn');
 const timerFabLabel = document.getElementById('timerFabLabel');
@@ -2267,10 +2268,18 @@ function updateTimerDisplay(){
 
 document.getElementById('timerMinus').addEventListener('click', ()=>{
   timerState.remaining = Math.max(0, timerState.remaining - 15);
+  if(timerState.running){
+    timerState.endAt = Date.now() + timerState.remaining*1000;
+    scheduleFinishTimeout(timerState.remaining);
+  }
   updateTimerDisplay();
 });
 document.getElementById('timerPlus').addEventListener('click', ()=>{
   timerState.remaining = timerState.remaining + 15;
+  if(timerState.running){
+    timerState.endAt = Date.now() + timerState.remaining*1000;
+    scheduleFinishTimeout(timerState.remaining);
+  }
   updateTimerDisplay();
 });
 document.getElementById('timerReset').addEventListener('click', ()=>{
@@ -2282,33 +2291,80 @@ document.getElementById('timerStart').addEventListener('click', ()=>{
   if(timerState.running){
     stopTimerInterval();
   } else {
+    maybeRequestNotifPermission();
     startTimerInterval();
   }
 });
 
+function maybeRequestNotifPermission(){
+  if(notifPermissionAsked) return;
+  notifPermissionAsked = true;
+  try{
+    if('Notification' in window && Notification.permission === 'default'){
+      Notification.requestPermission();
+    }
+  }catch(e){}
+}
+
+function scheduleFinishTimeout(seconds){
+  if(timerState.finishTimeoutId) clearTimeout(timerState.finishTimeoutId);
+  timerState.finishTimeoutId = setTimeout(()=>{
+    if(timerState.running) handleTimerReachedZero();
+  }, Math.max(0, seconds*1000));
+}
+
 function startTimerInterval(){
   if(timerState.remaining<=0) return;
   timerState.running = true;
+  timerState.endAt = Date.now() + timerState.remaining*1000;
   document.getElementById('timerStart').textContent = 'หยุด';
   document.getElementById('timerStart').classList.add('pause');
   updateTimerDisplay();
+  scheduleFinishTimeout(timerState.remaining);
+  // The interval keeps the visible countdown ticking while the tab is in the
+  // foreground. It may be throttled or paused entirely while backgrounded —
+  // the endAt timestamp is what keeps the actual time accurate regardless.
   timerState.intervalId = setInterval(()=>{
-    timerState.remaining--;
+    const remain = Math.max(0, Math.round((timerState.endAt - Date.now())/1000));
+    timerState.remaining = remain;
     updateTimerDisplay();
-    if(timerState.remaining<=0){
-      stopTimerInterval(true);
-      timerFinished();
+    if(remain<=0 && timerState.running){
+      handleTimerReachedZero();
     }
   }, 1000);
 }
 function stopTimerInterval(finished){
   if(timerState.intervalId) clearInterval(timerState.intervalId);
+  if(timerState.finishTimeoutId) clearTimeout(timerState.finishTimeoutId);
   timerState.intervalId = null;
+  timerState.finishTimeoutId = null;
   timerState.running = false;
+  timerState.endAt = null;
   document.getElementById('timerStart').textContent = 'เริ่ม';
   document.getElementById('timerStart').classList.remove('pause');
   if(!finished) updateTimerDisplay();
 }
+
+function handleTimerReachedZero(){
+  timerState.remaining = 0;
+  stopTimerInterval(true);
+  timerFinished();
+}
+
+// Whenever the tab/app comes back to the foreground, resync from the real
+// clock — this corrects any drift from throttled timers while backgrounded,
+// and fires the completion actions immediately if time is already up.
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && timerState.running && timerState.endAt){
+    const remain = Math.max(0, Math.round((timerState.endAt - Date.now())/1000));
+    timerState.remaining = remain;
+    updateTimerDisplay();
+    if(remain<=0){
+      handleTimerReachedZero();
+    }
+  }
+});
+
 function timerFinished(){
   updateTimerDisplay();
   try{ if(navigator.vibrate) navigator.vibrate([250,120,250,120,250]); }catch(e){}
@@ -2331,6 +2387,11 @@ function timerFinished(){
   showToast('⏱ หมดเวลาพัก!');
   timerFabLabel.textContent = 'พัก';
   timerFabBtn.classList.remove('running');
+  try{
+    if('Notification' in window && Notification.permission === 'granted' && document.hidden){
+      new Notification('⏱ หมดเวลาพัก!', { body: timerContext.textContent || 'ถึงเวลาเซ็ตต่อไปแล้ว', tag: 'loadline-rest-timer', icon: 'icon-192.png' });
+    }
+  }catch(e){}
 }
 
 // ---------- Warm-up calculator ----------
