@@ -790,6 +790,55 @@
   .gl-table tr:nth-child(even) td{background:var(--surface-2);}
   .gl-label{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--gold); white-space:nowrap;}
 
+  .tab.special.weight-active{
+    background:var(--olive-dim); border-color:var(--gold); color:var(--text);
+  }
+  .tdee-reminder{
+    background:var(--surface); border:1px solid var(--gold); border-radius:8px;
+    padding:11px 14px; margin-bottom:14px; font-family:'Inter',sans-serif;
+    font-size:12.5px; color:var(--text); line-height:1.5;
+  }
+  .phase-banner{
+    background:var(--surface); border:1px solid var(--run); border-radius:8px;
+    padding:11px 14px; margin-bottom:14px; font-family:'Inter',sans-serif;
+    font-size:12.5px; color:var(--text); line-height:1.5;
+  }
+  .weekly-recap-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:14px; margin-bottom:16px;
+  }
+  .weekly-recap-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:14px; margin-bottom:10px;
+  }
+  .weekly-recap-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    padding:5px 0; border-bottom:1px solid var(--line);
+  }
+  .weekly-recap-row:last-child{border-bottom:none;}
+  .weekly-recap-row b{color:var(--text);}
+  .streak-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--surface); border:1px solid var(--gold); border-radius:16px;
+    padding:6px 12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold);
+    margin-bottom:14px;
+  }
+  .water-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:14px; margin-bottom:16px;
+  }
+  .water-row{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
+  }
+  .water-val{font-family:'Oswald',sans-serif; font-weight:600; font-size:18px;}
+  .water-btns{display:flex; gap:8px;}
+  .water-btn{
+    background:var(--surface-2); border:1px solid var(--run); color:var(--run);
+    border-radius:6px; padding:8px 12px; font-family:'JetBrains Mono',monospace;
+    font-size:12px; cursor:pointer;
+  }
+  .water-btn.minus{border-color:var(--line); color:var(--muted);}
+
   /* Nutrition / calorie tracking */
   .tab.special.food-active{
     background:var(--food-dim); border-color:var(--food); color:var(--text);
@@ -1089,6 +1138,21 @@
     <input type="text" id="runNote" placeholder="เช่น Zone 2, รู้สึกเบา">
   </div>
   <button class="save-btn run" id="saveRunBtn">บันทึก</button>
+</div>
+
+<div class="sheet-backdrop" id="weightBackdrop"></div>
+<div class="sheet" id="weightSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">บันทึกน้ำหนักตัว</div>
+  <div class="field">
+    <span class="field-label">วันที่</span>
+    <input type="date" id="weightDate">
+  </div>
+  <div class="field">
+    <span class="field-label">น้ำหนัก (กก.)</span>
+    <input type="number" inputmode="decimal" id="weightKg" placeholder="เช่น 76.4">
+  </div>
+  <button class="save-btn" id="saveWeightBtn" style="background:var(--gold);">บันทึก</button>
 </div>
 
 <div class="sheet-backdrop" id="timerBackdrop"></div>
@@ -1446,6 +1510,21 @@ function topSet(entry){
   return best;
 }
 
+function estimate1RM(entries){
+  // Epley formula on the single best (load,reps) pair across all logged sets
+  let best = null;
+  entries.forEach(entry=>{
+    (entry.sets||[]).forEach(s=>{
+      const load = parseFloat(s.load), reps = parseFloat(s.reps);
+      if(!isNaN(load) && !isNaN(reps) && reps>0){
+        const est = load * (1 + reps/30);
+        if(!best || est > best) best = est;
+      }
+    });
+  });
+  return best ? Math.round(best*10)/10 : null;
+}
+
 function renderSpark(svgId, values, color){
   const el = document.getElementById(svgId);
   if(!el) return;
@@ -1522,6 +1601,12 @@ function renderTabs(){
   foodBtn.textContent = '🍽 แคล';
   foodBtn.addEventListener('click', ()=>{ currentView = {mode:'nutrition'}; renderTabs(); renderMain(); });
   tabs.appendChild(foodBtn);
+
+  const weightBtn = document.createElement('button');
+  weightBtn.className = 'tab special' + (currentView.mode==='weight' ? ' active weight-active' : '');
+  weightBtn.textContent = '⚖️ น้ำหนัก';
+  weightBtn.addEventListener('click', ()=>{ currentView = {mode:'weight'}; renderTabs(); renderMain(); });
+  tabs.appendChild(weightBtn);
 }
 
 function renderMain(){
@@ -1531,6 +1616,7 @@ function renderMain(){
   else if(currentView.mode === 'running') renderRunningView(main);
   else if(currentView.mode === 'calendar') renderCalendarView(main);
   else if(currentView.mode === 'nutrition') renderNutritionView(main);
+  else if(currentView.mode === 'weight') renderWeightView(main);
 }
 
 // ---------- Category view ----------
@@ -1539,7 +1625,11 @@ async function renderCategoryView(main){
   const program = currentProgram;
   const week = currentWeek;
   const catData = activeCatData();
-  main.innerHTML = '<div class="section-label">'+currentCat+(program==='p2' ? ' · WEEK '+week : '')+'</div>';
+  const weekMeta = WEEK_META[String(week)];
+  const phaseBanner = weekMeta && weekMeta.phase
+    ? '<div class="phase-banner">'+(weekMeta.phase==='Deload Week' ? '🌤 Deload Week — ส่วนใหญ่เซ็ตจะเบากว่าปกติ (RIR สูงขึ้น) เน้นฟอร์ม ไม่ต้องฝืนหนักสุด' : '🌱 Intro Week — สัปดาห์เริ่มต้น เซ็ตส่วนใหญ่เว้น 1-2 ครั้งจาก failure ให้ร่างกายปรับตัวก่อน')+'</div>'
+    : '';
+  main.innerHTML = phaseBanner + '<div class="section-label">'+currentCat+(program==='p2' ? ' · WEEK '+week : '')+'</div>';
   const list = document.createElement('div');
   main.appendChild(list);
 
@@ -1611,6 +1701,7 @@ async function openDetail(cat, ex){
 
   const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
   const bestLoad = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : null;
+  const est1RM = estimate1RM(entries);
 
   const weekBadge = program === 'p2' ? ' · WEEK '+week : '';
   const subLinksHtml = [
@@ -1651,6 +1742,7 @@ async function openDetail(cat, ex){
     + '<div class="stat-row">'
     + '<div class="stat"><div class="stat-label">ล่าสุด</div><div class="stat-value">'+(lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—')+'</div></div>'
     + '<div class="stat"><div class="stat-label">สูงสุด</div><div class="stat-value">'+(bestLoad!==null ? bestLoad : '—')+'</div></div>'
+    + '<div class="stat"><div class="stat-label">1RM ประมาณ</div><div class="stat-value">'+(est1RM!==null ? est1RM : '—')+'</div></div>'
     + '</div>'
     + '<svg class="big-spark" id="bigSpark"></svg>'
     + '<div class="section-label">ประวัติ (แตะเพื่อแก้ไข)</div>'
@@ -1772,6 +1864,7 @@ async function deleteEntry(entryId){
   const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
   statVals[0].textContent = lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—';
   statVals[1].textContent = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : '—';
+  statVals[2].textContent = estimate1RM(entries) ?? '—';
   renderBigSpark(sorted);
   renderHistory(sorted);
 }
@@ -1805,6 +1898,7 @@ async function refreshDetailStats(){
     const lastSet = weekSortedDesc[0] ? topSet(weekSortedDesc[0]) : null;
     statVals[0].textContent = lastSet ? (lastSet.load+' × '+(lastSet.reps||'-')) : '—';
     statVals[1].textContent = entries.length ? Math.max(...entries.map(e=>topLoad(e)||0)) : '—';
+    statVals[2].textContent = estimate1RM(entries) ?? '—';
     renderBigSpark(sorted);
     renderHistory(sorted);
   }
@@ -1939,6 +2033,7 @@ async function renderSupersetLiveStep(){
     btn.disabled = true;
     btn.textContent = 'กำลังบันทึก...';
     const entriesNow = await loadEntries(tId);
+    const prevBest = entriesNow.length ? Math.max(...entriesNow.map(e=>topLoad(e)||0)) : 0;
     const workingEntries = entriesNow.map(e=> ({ ...e, sets: e.sets.map(s=>({...s})) }));
     let entry = program === 'p2'
       ? workingEntries.find(e=> e.date === today && (e.week||1) === week)
@@ -1952,7 +2047,14 @@ async function renderSupersetLiveStep(){
     if(note) entry.note = note;
     const ok = await saveEntries(tId, workingEntries);
     btn.disabled = false;
-    if(ok) showToast('บันทึกเซ็ตแล้ว ✓');
+    const loadNum = parseFloat(load);
+    if(ok){
+      if(!isNaN(loadNum) && loadNum > prevBest && prevBest > 0){
+        showToast('🏆 PR ใหม่! ' + loadNum + ' — ทำลายสถิติเดิม');
+      } else {
+        showToast('บันทึกเซ็ตแล้ว ✓');
+      }
+    }
     if(target === 'A'){ await refreshDetailStats(); }
     renderSupersetLiveStep();
   });
@@ -2054,6 +2156,7 @@ async function renderLiveLogStep(){
     btn.disabled = true;
     btn.textContent = 'กำลังบันทึก...';
     const entriesNow = await loadEntries(id);
+    const prevBest = entriesNow.length ? Math.max(...entriesNow.map(e=>topLoad(e)||0)) : 0;
     const workingEntries = entriesNow.map(e=> ({ ...e, sets: e.sets.map(s=>({...s})) }));
     let entry = program === 'p2'
       ? workingEntries.find(e=> e.date === today && (e.week||1) === week)
@@ -2067,7 +2170,14 @@ async function renderLiveLogStep(){
     if(note) entry.note = note;
     const ok = await saveEntries(id, workingEntries);
     btn.disabled = false;
-    if(ok) showToast('บันทึกเซ็ตแล้ว ✓');
+    const loadNum = parseFloat(load);
+    if(ok){
+      if(!isNaN(loadNum) && loadNum > prevBest && prevBest > 0){
+        showToast('🏆 PR ใหม่! ' + loadNum + ' — ทำลายสถิติเดิม');
+      } else {
+        showToast('บันทึกเซ็ตแล้ว ✓');
+      }
+    }
     // Proceed regardless: the set is kept in memory for this session either way,
     // and saveEntries already surfaces a one-time warning if persistence is failing.
     await refreshDetailStats();
@@ -2300,6 +2410,118 @@ document.getElementById('saveRunBtn').addEventListener('click', async ()=>{
   renderMain();
 });
 
+// ---------- Body weight tracking ----------
+const WEIGHT_KEY = "bodyweight:log";
+
+async function loadWeightEntries(){
+  return await loadEntries(WEIGHT_KEY);
+}
+
+async function renderWeightView(main){
+  const entries = await loadWeightEntries();
+  const sorted = [...entries].sort((a,b)=> a.date.localeCompare(b.date));
+  const sortedDesc = [...sorted].reverse();
+
+  const last = sorted[sorted.length-1];
+  const prev = sorted[sorted.length-2];
+  let trendHtml = "";
+  if(last && prev){
+    const diff = parseFloat(last.kg) - parseFloat(prev.kg);
+    if(diff < -0.01) trendHtml = '<div class="ex-trend trend-up">▼ '+diff.toFixed(1)+' กก.</div>';
+    else if(diff > 0.01) trendHtml = '<div class="ex-trend trend-down">▲ +'+diff.toFixed(1)+' กก.</div>';
+    else trendHtml = '<div class="ex-trend trend-flat">— คงที่</div>';
+  }
+
+  // TDEE recheck reminder: nudge if it's been 28+ days since the last log (or none yet)
+  const today = todayStr();
+  let daysSinceLast = null;
+  if(last){
+    daysSinceLast = Math.round((new Date(today) - new Date(last.date)) / 86400000);
+  }
+  const tdeeReminder = (!last || daysSinceLast >= 28)
+    ? '<div class="tdee-reminder">📐 '+(!last ? 'ยังไม่มีบันทึกน้ำหนัก — เริ่มชั่งและจดไว้เพื่อติดตาม TDEE' : 'ไม่ได้ชั่งน้ำหนักมา '+daysSinceLast+' วันแล้ว — ควรชั่งใหม่และคำนวณ TDEE/เป้าหมายแคลอีกครั้ง')+'</div>'
+    : '';
+
+  main.innerHTML =
+    '<div class="section-label">น้ำหนักตัว</div>'
+    + tdeeReminder
+    + '<div class="card">'
+    + '<div class="card-top">'
+    + '<div>'
+    + '<div class="ex-name">น้ำหนักล่าสุด</div>'
+    + '<div class="ex-target">บันทึกไปแล้ว '+entries.length+' ครั้ง</div>'
+    + '</div>'
+    + '<div class="ex-last">'
+    + '<div class="ex-last-load '+(!last?'empty':'')+'">'+(last ? last.kg+' กก.' : 'ยังไม่มีข้อมูล')+'</div>'
+    + trendHtml
+    + '</div>'
+    + '</div>'
+    + '<div class="spark" id="weightSpark"></div>'
+    + '</div>'
+    + '<div class="section-label">ประวัติ</div>'
+    + '<div id="weightList"></div>';
+
+  renderSpark('weightSpark', sorted.map(e=>parseFloat(e.kg)).filter(v=>!isNaN(v)), "#C9A24B");
+
+  const list = document.getElementById('weightList');
+  if(!sortedDesc.length){
+    list.innerHTML = '<div class="empty-hint">ยังไม่มีบันทึกน้ำหนัก — กด "+ บันทึกน้ำหนัก" เพื่อเริ่ม</div>';
+  } else {
+    list.innerHTML = sortedDesc.map(e=>
+      '<div class="run-card" data-id="'+e.id+'">'
+      + '<div><div class="run-date">'+fmtDate(e.date)+'</div><div class="run-main">'+e.kg+' กก.</div></div>'
+      + '<button class="log-del" data-del="'+e.id+'">✕</button>'
+      + '</div>'
+    ).join('');
+    list.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
+        let all = await loadWeightEntries();
+        all = all.filter(e=> String(e.id) !== String(btn.dataset.del));
+        await saveEntries(WEIGHT_KEY, all);
+        renderMain();
+      });
+    });
+  }
+
+  const fab = document.createElement('button');
+  fab.className = 'fab';
+  fab.style.background = 'var(--gold)';
+  fab.style.color = 'var(--bg)';
+  fab.textContent = '+ บันทึกน้ำหนัก';
+  fab.addEventListener('click', openWeightSheet);
+  main.appendChild(fab);
+}
+
+const weightSheet = document.getElementById('weightSheet');
+const weightBackdrop = document.getElementById('weightBackdrop');
+function openWeightSheet(){
+  document.getElementById('weightDate').value = todayStr();
+  document.getElementById('weightKg').value = '';
+  weightBackdrop.classList.add('open');
+  weightSheet.classList.add('open');
+}
+function closeWeightSheet(){
+  weightBackdrop.classList.remove('open');
+  weightSheet.classList.remove('open');
+}
+weightBackdrop.addEventListener('click', closeWeightSheet);
+
+document.getElementById('saveWeightBtn').addEventListener('click', async ()=>{
+  const date = document.getElementById('weightDate').value || todayStr();
+  const kg = document.getElementById('weightKg').value;
+  if(!kg){
+    showToast('กรอกน้ำหนักก่อน');
+    return;
+  }
+  let entries = await loadWeightEntries();
+  entries.push({id: Date.now(), date, kg});
+  await saveEntries(WEIGHT_KEY, entries);
+  closeWeightSheet();
+  showToast('บันทึกน้ำหนักแล้ว ✓');
+  renderMain();
+});
+
 // ---------- Calendar view ----------
 async function buildMonthActivity(year, month){
   const map = {};
@@ -2347,11 +2569,43 @@ async function buildMonthActivity(year, month){
   return map;
 }
 
+async function computeTrainingStreak(){
+  // Count consecutive days (walking backward from today) that have at least
+  // one logged training set in any Program 2 category.
+  const trainedDates = new Set();
+  for(const cat of Object.keys(PROGRAM2_DATA)){
+    for(const ex of PROGRAM2_DATA[cat]){
+      const id = storageId('p2', cat, ex.n);
+      const entries = await loadEntries(id);
+      entries.forEach(e=>{ if(e.date) trainedDates.add(e.date); });
+    }
+  }
+  let streak = 0;
+  const cursor = new Date(todayStr()+"T00:00:00");
+  // If today has no training yet, start counting from yesterday so an
+  // in-progress day doesn't zero out an existing streak.
+  if(!trainedDates.has(todayStr())){
+    cursor.setDate(cursor.getDate()-1);
+  }
+  while(true){
+    const ds = cursor.getFullYear()+"-"+String(cursor.getMonth()+1).padStart(2,'0')+"-"+String(cursor.getDate()).padStart(2,'0');
+    if(trainedDates.has(ds)){
+      streak++;
+      cursor.setDate(cursor.getDate()-1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
 async function renderCalendarView(main){
   const {year, month} = calState;
   const monthNames = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  const streak = await computeTrainingStreak();
   main.innerHTML =
-    '<div class="cal-nav">'
+    (streak>0 ? '<div class="streak-badge">🔥 เทรนติดต่อกัน '+streak+' วัน</div>' : '')
+    + '<div class="cal-nav">'
     + '<button class="cal-nav-btn" id="prevMonth">‹</button>'
     + '<div class="cal-month-label">'+monthNames[month]+' '+(year+543)+'</div>'
     + '<button class="cal-nav-btn" id="nextMonth">›</button>'
@@ -2825,13 +3079,97 @@ async function loadFoodEntries(){
   return await loadEntries(FOOD_KEY);
 }
 
+async function detectTrainedCategoryToday(){
+  const today = todayStr();
+  for(const cat of Object.keys(PROGRAM2_DATA)){
+    for(const ex of PROGRAM2_DATA[cat]){
+      const id = storageId('p2', cat, ex.n);
+      const entries = await loadEntries(id);
+      if(entries.some(e=> e.date===today && (e.week||1)===currentWeek)){
+        return cat;
+      }
+    }
+  }
+  return null;
+}
+
+async function computeWeeklyRecap(){
+  const today = new Date(todayStr()+"T00:00:00");
+  function offsetDate(days){
+    const d = new Date(today);
+    d.setDate(d.getDate()+days);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0');
+  }
+  const last7 = []; for(let i=6;i>=0;i--) last7.push(offsetDate(-i));
+  const prev7 = []; for(let i=13;i>=7;i--) prev7.push(offsetDate(-i));
+
+  const trainedDaysSet = new Set();
+  let volLast7 = 0, volPrev7 = 0;
+  for(const cat of Object.keys(PROGRAM2_DATA)){
+    for(const ex of PROGRAM2_DATA[cat]){
+      const id = storageId('p2', cat, ex.n);
+      const entries = await loadEntries(id);
+      entries.forEach(e=>{
+        if(last7.includes(e.date)){ trainedDaysSet.add(e.date); volLast7 += entryVolume(e); }
+        else if(prev7.includes(e.date)){ volPrev7 += entryVolume(e); }
+      });
+    }
+  }
+
+  const foodEntries = await loadFoodEntries();
+  let proteinHitDays = 0;
+  last7.forEach(d=>{
+    const dayTotal = foodEntries.filter(e=>e.date===d).reduce((s,e)=> s+(e.total.protein||0), 0);
+    if(dayTotal >= NUTRI_BASE_TARGETS.training.protein) proteinHitDays++;
+  });
+
+  return {
+    trainedDays: trainedDaysSet.size,
+    volLast7: Math.round(volLast7),
+    volPrev7: Math.round(volPrev7),
+    proteinHitDays,
+  };
+}
+
+// ---- Water intake tracking ----
+const WATER_KEY = "nutrition:water-log";
+async function getTodayWaterMl(){
+  const entries = await loadEntries(WATER_KEY);
+  const today = todayStr();
+  const rec = entries.find(e=> e.date === today);
+  return rec ? rec.ml : 0;
+}
+async function adjustWater(deltaMl){
+  let entries = await loadEntries(WATER_KEY);
+  const today = todayStr();
+  let rec = entries.find(e=> e.date === today);
+  if(!rec){
+    rec = { date: today, ml: 0 };
+    entries.push(rec);
+  }
+  rec.ml = Math.max(0, rec.ml + deltaMl);
+  await saveEntries(WATER_KEY, entries);
+  renderMain();
+}
+
 async function renderNutritionView(main){
   const entries = await loadFoodEntries();
   const today = todayStr();
   const todayEntries = entries.filter(e=> e.date === today);
   const sortedAll = [...entries].sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
   const dayCtx = await loadDayContext();
+  if(!dayCtx.dayType){
+    const detected = await detectTrainedCategoryToday();
+    if(detected){
+      dayCtx.dayType = detected;
+      dayCtx.date = today;
+      dayCtx.autoDetected = true;
+      await saveDayContext(dayCtx);
+    }
+  }
   const target = computeTodayTarget(dayCtx);
+  const recap = await computeWeeklyRecap();
+  const waterMl = await getTodayWaterMl();
 
   const sum = todayEntries.reduce((acc,e)=>{
     acc.kcal += e.total.kcal||0;
@@ -2851,14 +3189,33 @@ async function renderNutritionView(main){
     '<button type="button" class="day-type-chip'+(dayCtx.dayType===o.key?' active':'')+'" data-day-type="'+o.key+'">'+o.label+'</button>'
   ).join('');
 
+  const volDiff = recap.volLast7 - recap.volPrev7;
+  const volTrend = recap.volPrev7>0
+    ? (volDiff>0 ? ' <span class="trend-up">▲</span>' : (volDiff<0 ? ' <span class="trend-down">▼</span>' : ' —'))
+    : '';
+
   main.innerHTML =
-    '<div class="section-label">วันนี้เล่นตารางอะไร</div>'
+    '<div class="weekly-recap-card">'
+    + '<div class="weekly-recap-title">สรุป 7 วันที่ผ่านมา</div>'
+    + '<div class="weekly-recap-row"><span>วันที่เทรน</span><b>'+recap.trainedDays+' / 7 วัน</b></div>'
+    + '<div class="weekly-recap-row"><span>Volume รวม (เทียบ 7 วันก่อน)</span><b>'+recap.volLast7+volTrend+'</b></div>'
+    + '<div class="weekly-recap-row"><span>วันที่กินโปรตีนครบเป้า</span><b>'+recap.proteinHitDays+' / 7 วัน</b></div>'
+    + '</div>'
+    + '<div class="water-card">'
+    + '<div class="water-row"><span class="weekly-recap-title" style="margin-bottom:0;">💧 น้ำดื่มวันนี้</span><span class="water-val">'+waterMl+' / 2500 ml</span></div>'
+    + '<div class="macro-bar-track" style="margin-bottom:10px;"><div class="macro-bar-fill" style="width:'+Math.min(100,(waterMl/2500)*100)+'%; background:'+RUN_COLOR+';"></div></div>'
+    + '<div class="water-btns">'
+    + '<button class="water-btn minus" id="waterMinusBtn">− 250ml</button>'
+    + '<button class="water-btn" id="waterPlusBtn">+ 250ml</button>'
+    + '</div>'
+    + '</div>'
+    + '<div class="section-label">วันนี้เล่นตารางอะไร</div>'
     + '<div class="day-type-row" id="dayTypeRow">'+dayTypeChips+'</div>'
     + '<div class="activity-bonus-row">'
     + '<div class="field-mini"><label>🏃 วิ่ง (นาที)</label><input type="number" inputmode="numeric" id="runMinInput" value="'+(dayCtx.runMin||'')+'" placeholder="0"></div>'
     + '<div class="field-mini"><label>🏸 ตีแบต (นาที)</label><input type="number" inputmode="numeric" id="badmintonMinInput" value="'+(dayCtx.badmintonMin||'')+'" placeholder="0"></div>'
     + '</div>'
-    + (dayCtx.dayType ? '<div class="day-target-note">เป้าหมายวันนี้: '+(DAY_TYPE_OPTIONS.find(o=>o.key===dayCtx.dayType).kind==='rest'?'วันพัก':'วันเทรน')+(((parseFloat(dayCtx.runMin)||0)+(parseFloat(dayCtx.badmintonMin)||0))>0 ? ' + กิจกรรมเสริม' : '')+'</div>' : '<div class="day-target-note">ยังไม่ได้เลือก — ใช้ค่าเฉลี่ยเริ่มต้นไปก่อน</div>')
+    + (dayCtx.dayType ? '<div class="day-target-note">เป้าหมายวันนี้: '+(DAY_TYPE_OPTIONS.find(o=>o.key===dayCtx.dayType).kind==='rest'?'วันพัก':'วันเทรน')+(dayCtx.autoDetected ? ' (ตรวจพบอัตโนมัติจากเซ็ตที่บันทึกวันนี้)' : '')+(((parseFloat(dayCtx.runMin)||0)+(parseFloat(dayCtx.badmintonMin)||0))>0 ? ' + กิจกรรมเสริม' : '')+'</div>' : '<div class="day-target-note">ยังไม่ได้เลือก — ใช้ค่าเฉลี่ยเริ่มต้นไปก่อน</div>')
     + '<div class="section-label">วันนี้ ('+fmtDate(today)+')</div>'
     + '<div class="macro-row">'
     + '<div class="macro-box"><div class="macro-label">Kcal</div><div class="macro-val">'+Math.round(sum.kcal)+'</div><div class="macro-target">/ '+target.kcal+'</div>'+bar(sum.kcal, target.kcal)+'</div>'
@@ -2871,10 +3228,14 @@ async function renderNutritionView(main){
     + '<div class="section-label">ประวัติมื้ออาหาร</div>'
     + '<div id="mealList"></div>';
 
+  document.getElementById('waterMinusBtn').addEventListener('click', ()=> adjustWater(-250));
+  document.getElementById('waterPlusBtn').addEventListener('click', ()=> adjustWater(250));
+
   document.getElementById('dayTypeRow').querySelectorAll('[data-day-type]').forEach(chip=>{
     chip.addEventListener('click', async ()=>{
       dayCtx.dayType = chip.dataset.dayType;
       dayCtx.date = today;
+      dayCtx.autoDetected = false;
       await saveDayContext(dayCtx);
       renderMain();
     });
@@ -3571,7 +3932,7 @@ function getAllStorageKeys(){
   const keys = [];
   Object.keys(DATA).forEach(cat=> DATA[cat].forEach(ex=> keys.push('entries:' + slug(cat, ex.n))));
   Object.keys(PROGRAM2_DATA).forEach(cat=> PROGRAM2_DATA[cat].forEach(ex=> keys.push(storageId('p2', cat, ex.n))));
-  keys.push(RUN_KEY, FOOD_KEY, FAV_ING_KEY);
+  keys.push(RUN_KEY, FOOD_KEY, FAV_ING_KEY, WEIGHT_KEY, WATER_KEY, DAY_CONTEXT_KEY);
   return keys;
 }
 
