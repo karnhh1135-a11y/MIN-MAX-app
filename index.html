@@ -430,6 +430,20 @@
     text-align:center; font-family:'JetBrains Mono',monospace; font-size:11.5px;
     color:var(--up); margin-top:6px; margin-bottom:8px;
   }
+  .superset-header{
+    display:flex; gap:8px; margin-bottom:16px;
+  }
+  .superset-ex{
+    flex:1; background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:9px 10px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted);
+    text-align:center; line-height:1.4;
+  }
+  .superset-ex span{display:block; font-size:10px; margin-top:2px;}
+  .superset-ex.active{
+    background:#3D2A33; border-color:#C97A9E; color:var(--text);
+  }
+  .superset-ex.active span{color:#C97A9E; font-weight:700;}
+  .superset-ex.done:not(.active){opacity:0.55;}
   .live-logged-so-far{
     display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
     margin-bottom:14px;
@@ -1269,8 +1283,8 @@ function kcalFromMacros(protein, carb, fat){
   return Math.round(p*4 + c*4 + f*9);
 }
 
-let currentView = { mode:'category', cat: Object.keys(DATA)[0] };
-let currentProgram = 'p1'; // 'p1' | 'p2'
+let currentView = { mode:'category', cat: Object.keys(PROGRAM2_DATA)[0] };
+let currentProgram = 'p2'; // Week-12 LOADLINE (p1) has been retired; only Min-Max (p2) remains
 let currentWeek = 1; // 1-12, only relevant for p2
 let cache = {};
 let activeExercise = null;
@@ -1342,6 +1356,27 @@ function getSupersetPartner(program, cat, ex){
   const list = PROGRAM2_DATA[cat] || [];
   const partner = list.find(e=> e.n !== ex.n && e.n.startsWith(prefix+':'));
   return partner ? partner.n.replace(/^S\d:\s*/,'') : null;
+}
+
+function getSupersetPartnerExercise(program, cat, ex){
+  if(program !== 'p2') return null;
+  const m = ex.n.match(/^(S\d):\s*/);
+  if(!m) return null;
+  const prefix = m[1];
+  const list = PROGRAM2_DATA[cat] || [];
+  return list.find(e=> e.n !== ex.n && e.n.startsWith(prefix+':')) || null;
+}
+
+function stripSupersetPrefix(name){
+  return name.replace(/^S\d:\s*/, '');
+}
+
+function getExerciseAfterPair(program, cat, exA, exB){
+  const list = (program === 'p1' ? DATA : PROGRAM2_DATA)[cat];
+  const idxA = list.findIndex(e=> e.n === exA.n);
+  const idxB = list.findIndex(e=> e.n === exB.n);
+  const maxIdx = Math.max(idxA, idxB);
+  return list[maxIdx+1] || null;
 }
 
 const RIR0_SAFETY_EXCEPTIONS = ['Hack Squat', 'Smith Machine Bench Press'];
@@ -1437,41 +1472,23 @@ function renderSpark(svgId, values, color){
 // ---------- Tabs ----------
 function renderProgramSwitch(){
   const wrap = document.getElementById('programSwitch');
-  wrap.innerHTML =
-    '<button class="program-btn'+(currentProgram==='p1'?' active':'')+'" id="progP1Btn">LOADLINE<span class="p-sub">Week 12 Program</span></button>'
-    + '<button class="program-btn'+(currentProgram==='p2'?' active p2':'')+'" id="progP2Btn">MIN-MAX<span class="p-sub">Peak Physique · 5x/Week</span></button>';
-  document.getElementById('progP1Btn').addEventListener('click', ()=> switchProgram('p1'));
-  document.getElementById('progP2Btn').addEventListener('click', ()=> switchProgram('p2'));
+  wrap.innerHTML = '';
+  wrap.style.display = 'none';
 
   const weekBar = document.getElementById('weekSelectBar');
-  if(currentProgram === 'p2'){
-    weekBar.style.display = 'block';
-    weekBar.innerHTML =
-      '<div class="week-select-label">สัปดาห์ที่กำลังฝึก</div>'
-      + '<div class="week-chip-row" id="weekChipRow"></div>';
-    const row = document.getElementById('weekChipRow');
-    for(let w=1; w<=12; w++){
-      const meta = WEEK_META[String(w)];
-      const chip = document.createElement('button');
-      chip.className = 'week-chip' + (currentWeek===w ? ' active' : '');
-      chip.innerHTML = w + (meta.phase ? '<span class="wk-phase">'+meta.phase.replace(' Week','')+'</span>' : '');
-      chip.addEventListener('click', ()=>{ currentWeek = w; renderProgramSwitch(); renderMain(); });
-      row.appendChild(chip);
-    }
-  } else {
-    weekBar.style.display = 'none';
-    weekBar.innerHTML = '';
+  weekBar.style.display = 'block';
+  weekBar.innerHTML =
+    '<div class="week-select-label">สัปดาห์ที่กำลังฝึก</div>'
+    + '<div class="week-chip-row" id="weekChipRow"></div>';
+  const row = document.getElementById('weekChipRow');
+  for(let w=1; w<=12; w++){
+    const meta = WEEK_META[String(w)];
+    const chip = document.createElement('button');
+    chip.className = 'week-chip' + (currentWeek===w ? ' active' : '');
+    chip.innerHTML = w + (meta.phase ? '<span class="wk-phase">'+meta.phase.replace(' Week','')+'</span>' : '');
+    chip.addEventListener('click', ()=>{ currentWeek = w; renderProgramSwitch(); renderMain(); });
+    row.appendChild(chip);
   }
-}
-
-function switchProgram(p){
-  if(currentProgram === p) return;
-  currentProgram = p;
-  const firstCat = Object.keys(activeCatData())[0];
-  currentView = { mode:'category', cat: firstCat };
-  renderProgramSwitch();
-  renderTabs();
-  renderMain();
 }
 
 function renderTabs(){
@@ -1797,10 +1814,148 @@ async function refreshDetailStats(){
 // ---- Live set-by-set logging ----
 function openLiveLogSheet(){
   entrySheetMode = 'live';
-  document.getElementById('sheetTitle').textContent = 'บันทึกเซ็ต: ' + activeExercise.ex.n;
-  renderLiveLogStep();
+  const {ex, program, cat, week} = activeExercise;
+  const partnerEx = getSupersetPartnerExercise(program, cat, ex);
+  if(partnerEx){
+    activeExercise.partnerEx = partnerEx;
+    activeExercise.partnerId = storageId(program, cat, partnerEx.n);
+    activeExercise.partnerMeta = exMeta(program, partnerEx, week);
+    document.getElementById('sheetTitle').textContent = 'Superset: ' + stripSupersetPrefix(ex.n) + ' + ' + stripSupersetPrefix(partnerEx.n);
+    renderSupersetLiveStep();
+  } else {
+    document.getElementById('sheetTitle').textContent = 'บันทึกเซ็ต: ' + ex.n;
+    renderLiveLogStep();
+  }
   backdrop.classList.add('open');
   sheet.classList.add('open');
+}
+
+async function renderSupersetLiveStep(){
+  const body = document.getElementById('entrySheetBody');
+  const {ex, id, meta, program, cat, week, partnerEx, partnerId, partnerMeta} = activeExercise;
+  const today = todayStr();
+
+  const entriesA = await loadEntries(id);
+  const entriesB = await loadEntries(partnerId);
+  const todayA = program === 'p2'
+    ? entriesA.find(e=> e.date === today && (e.week||1) === week)
+    : entriesA.find(e=> e.date === today);
+  const todayB = program === 'p2'
+    ? entriesB.find(e=> e.date === today && (e.week||1) === week)
+    : entriesB.find(e=> e.date === today);
+  const loggedA = todayA ? todayA.sets.length : 0;
+  const loggedB = todayB ? todayB.sets.length : 0;
+  const totalA = meta.sets || 1;
+  const totalB = partnerMeta.sets || 1;
+  const doneA = loggedA >= totalA;
+  const doneB = loggedB >= totalB;
+
+  if(doneA && doneB){
+    const setsStrA = todayA ? todayA.sets.map((s,i)=> 'S'+(i+1)+': '+(s.load||'-')+' × '+(s.reps||'-')).join('   ') : '';
+    const setsStrB = todayB ? todayB.sets.map((s,i)=> 'S'+(i+1)+': '+(s.load||'-')+' × '+(s.reps||'-')).join('   ') : '';
+    const nextEx = getExerciseAfterPair(program, cat, ex, partnerEx);
+    body.innerHTML =
+      '<div class="live-complete">'
+      + '<div class="live-complete-check">✓</div>'
+      + '<div class="live-complete-title">เล่นครบ Superset แล้ว</div>'
+      + '<div class="live-complete-sets"><b>'+stripSupersetPrefix(ex.n)+':</b> '+setsStrA+'</div>'
+      + '<div class="live-complete-sets"><b>'+stripSupersetPrefix(partnerEx.n)+':</b> '+setsStrB+'</div>'
+      + '</div>'
+      + (nextEx ? '<button class="next-ex-btn" id="nextExBtn">ท่าต่อไป: '+nextEx.n+' →</button>' : '')
+      + '<button class="close-plain-btn" id="closeLiveBtn">เสร็จสิ้น</button>';
+    if(nextEx){
+      document.getElementById('nextExBtn').addEventListener('click', ()=> goToNextExercise(nextEx));
+    }
+    document.getElementById('closeLiveBtn').addEventListener('click', closeEntrySheet);
+    return;
+  }
+
+  // Alternate A, B, A, B... catching up gracefully if set counts differ
+  const target = (!doneA && loggedA <= loggedB) ? 'A' : (!doneB ? 'B' : 'A');
+  const tEx = target === 'A' ? ex : partnerEx;
+  const tId = target === 'A' ? id : partnerId;
+  const tMeta = target === 'A' ? meta : partnerMeta;
+  const tLogged = target === 'A' ? loggedA : loggedB;
+  const tTotal = target === 'A' ? totalA : totalB;
+  const tTodayEntry = target === 'A' ? todayA : todayB;
+  const stepNum = tLogged + 1;
+  const isLastSet = stepNum === tTotal;
+
+  const supersetHeader =
+    '<div class="superset-header">'
+    + '<div class="superset-ex'+(target==='A'?' active':'')+(doneA?' done':'')+'">'+stripSupersetPrefix(ex.n)+' <span>'+loggedA+'/'+totalA+'</span></div>'
+    + '<div class="superset-ex'+(target==='B'?' active':'')+(doneB?' done':'')+'">'+stripSupersetPrefix(partnerEx.n)+' <span>'+loggedB+'/'+totalB+'</span></div>'
+    + '</div>';
+
+  const priorEntry = (target==='A'?entriesA:entriesB).filter(e=> e.date !== today).sort((a,b)=> b.date.localeCompare(a.date))[0];
+  const priorSet = priorEntry ? priorEntry.sets[tLogged] : null;
+  let priorHint = priorSet
+    ? '<div class="live-prev-hint">ครั้งก่อน (เซ็ต '+stepNum+'): <span>'+(priorSet.load||'-')+' × '+(priorSet.reps||'-')+'</span></div>'
+    : '';
+  if(priorSet && priorSet.reps){
+    const repTop = parseRepRangeTop(tMeta.reps);
+    if(repTop !== null && parseFloat(priorSet.reps) >= repTop){
+      priorHint += '<div class="progression-tip">🔼 ครั้งก่อนถึงบนสุดของช่วงเป้าหมายแล้ว — ลองเพิ่มน้ำหนักเซ็ตนี้</div>';
+    }
+  }
+
+  body.innerHTML =
+    supersetHeader
+    + '<div class="live-step-label">'+stripSupersetPrefix(tEx.n)+' — เซ็ต '+stepNum+' จาก '+tTotal+' <span class="target-reps-badge">เป้าหมาย '+tMeta.reps+' ครั้ง</span></div>'
+    + priorHint
+    + '<div class="live-context">'
+    + '<div class="live-ctx-row">'
+    + '<div class="live-ctx-item rest"><span class="lbl">Rest</span><span class="val">'+tMeta.rest+'</span></div>'
+    + '<div class="live-ctx-item rir"><span class="lbl">RIR</span><span class="val">'+tMeta.rir+'</span></div>'
+    + '<div class="live-ctx-item warmup"><span class="lbl">Warm-up</span><span class="val">'+tMeta.warmup+'</span></div>'
+    + (tMeta.rest !== 'N/A' ? '<button type="button" class="live-ctx-timer-btn" id="liveRestTimerBtn">⏱ เริ่มพัก</button>' : '')
+    + '</div>'
+    + (tMeta.tech!=='N/A' ? '<div class="live-ctx-tech">'+(isLastSet?'🔥 เซ็ตนี้ (เซ็ตสุดท้าย): ':'ℹ️ ใช้เฉพาะเซ็ตสุดท้าย: ')+tMeta.tech+'</div>' : '')
+    + '</div>'
+    + '<div class="live-input-row">'
+    + '<div class="live-input-col"><label>น้ำหนัก</label><input type="number" inputmode="decimal" id="liveLoad" placeholder="'+(priorSet&&priorSet.load?priorSet.load:'')+'"></div>'
+    + '<div class="live-x">×</div>'
+    + '<div class="live-input-col"><label>ครั้ง</label><input type="number" inputmode="numeric" id="liveReps" placeholder="'+(priorSet&&priorSet.reps?priorSet.reps:tMeta.reps)+'"></div>'
+    + '</div>'
+    + '<div class="field"><span class="field-label">โน้ต (ไม่บังคับ)</span><input type="text" id="liveNote" value="'+(tTodayEntry?escapeHtml(tTodayEntry.note||''):'')+'" placeholder="เช่น ฟอร์มดีขึ้น, RIR แน่น"></div>'
+    + '<button class="save-btn" id="saveSetBtn">บันทึกเซ็ตนี้ →</button>';
+
+  const restBtn3 = document.getElementById('liveRestTimerBtn');
+  if(restBtn3){
+    restBtn3.addEventListener('click', ()=>{
+      openTimerSheet(parseRestSeconds(tMeta.rest), tEx.n + ' · REST ' + tMeta.rest);
+    });
+  }
+
+  document.getElementById('saveSetBtn').addEventListener('click', async ()=>{
+    const btn = document.getElementById('saveSetBtn');
+    const load = document.getElementById('liveLoad').value;
+    const reps = document.getElementById('liveReps').value;
+    const note = document.getElementById('liveNote').value.trim();
+    if(!load && !reps){
+      showToast('กรอกน้ำหนักหรือจำนวนครั้งอย่างน้อย 1 อย่าง');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'กำลังบันทึก...';
+    const entriesNow = await loadEntries(tId);
+    const workingEntries = entriesNow.map(e=> ({ ...e, sets: e.sets.map(s=>({...s})) }));
+    let entry = program === 'p2'
+      ? workingEntries.find(e=> e.date === today && (e.week||1) === week)
+      : workingEntries.find(e=> e.date === today);
+    if(!entry){
+      entry = { id: Date.now(), date: today, sets: [], note: '' };
+      if(program === 'p2') entry.week = week;
+      workingEntries.push(entry);
+    }
+    entry.sets.push({load, reps});
+    if(note) entry.note = note;
+    const ok = await saveEntries(tId, workingEntries);
+    btn.disabled = false;
+    if(ok) showToast('บันทึกเซ็ตแล้ว ✓');
+    if(target === 'A'){ await refreshDetailStats(); }
+    renderSupersetLiveStep();
+  });
 }
 
 async function renderLiveLogStep(){
