@@ -403,6 +403,22 @@
   .timer-fab .ticon{font-size:18px;}
   .timer-fab.running{background:var(--up); color:var(--bg);}
 
+  .workout-fab{
+    position:fixed; left:18px; bottom:86px;
+    min-width:54px; height:54px; border-radius:27px;
+    background:var(--surface); color:var(--text); border:1px solid var(--line);
+    cursor:pointer; z-index:16;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.45);
+    padding:0 12px;
+  }
+  .workout-fab .wf-icon{font-size:18px;}
+  .workout-fab.running{
+    background:var(--down); color:var(--text); border-color:var(--down);
+    min-width:78px;
+  }
+
   .timer-banner{
     position:fixed; top:10px; left:50%; transform:translateX(-50%);
     background:var(--gold); color:var(--bg); padding:8px 16px; border-radius:20px;
@@ -803,6 +819,20 @@
     padding:11px 14px; margin-bottom:14px; font-family:'Inter',sans-serif;
     font-size:12.5px; color:var(--text); line-height:1.5;
   }
+  .workout-hist-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; margin-bottom:16px;
+  }
+  .workout-hist-title{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:13px; margin-bottom:8px;
+  }
+  .workout-hist-row{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);
+    padding:4px 0; border-bottom:1px solid var(--line);
+  }
+  .workout-hist-row:last-child{border-bottom:none;}
+  .workout-hist-row span:last-child{color:var(--gold); font-weight:700;}
   .weekly-recap-card{
     background:var(--surface); border:1px solid var(--line); border-radius:8px;
     padding:14px; margin-bottom:16px;
@@ -963,6 +993,21 @@
   .ing-manual-fields input{
     width:100%; text-align:center; font-size:12px; padding:7px 2px;
   }
+  .food-suggest-dropdown{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:6px;
+    margin-bottom:8px; overflow:hidden;
+  }
+  .food-suggest-item{
+    padding:9px 11px; font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text);
+    border-bottom:1px solid var(--line); cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+  }
+  .food-suggest-item:last-child{border-bottom:none;}
+  .food-suggest-item:active{background:var(--surface);}
+  .food-suggest-item .fs-kcal{
+    color:var(--food); font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    flex:0 0 auto; white-space:nowrap;
+  }
   .ing-del{
     background:none; border:none; color:var(--muted); font-size:16px; cursor:pointer;
     padding:4px 6px; flex:0 0 auto;
@@ -1103,6 +1148,7 @@
 </div>
 
 <button class="timer-fab" id="timerFabBtn"><span class="ticon">⏱</span><span id="timerFabLabel">พัก</span></button>
+<button class="workout-fab" id="workoutFabBtn"><span class="wf-icon">🏋️</span><span id="workoutFabLabel">เริ่ม</span></button>
 
 <div class="sheet-backdrop" id="backdrop"></div>
 <div class="sheet" id="sheet">
@@ -1205,7 +1251,7 @@
 <div class="sheet" id="backupSheet">
   <div class="sheet-handle"></div>
   <div class="sheet-title">สำรอง / กู้คืนข้อมูล</div>
-  <div class="backup-warning">💾 เวอร์ชันนี้เก็บข้อมูลไว้ใน<b>เบราว์เซอร์เครื่องนี้เท่านั้น</b> (localStorage) — เสถียรกว่าเดิมมาก แต่ <b>ไม่ sync ข้ามอุปกรณ์อัตโนมัติ</b> และถ้าล้างข้อมูลเบราว์เซอร์/เปลี่ยนเครื่อง ข้อมูลจะหาย ใช้ Export/Import เพื่อย้ายข้อมูลข้ามอุปกรณ์เอง<br><br>🤖 ฟีเจอร์คำนวณแคลด้วย AI (ทั้งจากรูปถ่ายและชื่อวัตถุดิบ) <b>อาจใช้งานไม่ได้</b> เมื่อเปิดไฟล์นอกเว็บ Claude.ai — แต่การกรอกสารอาหารเองจากฉลาก (manual) ยังใช้งานได้ปกติทุกฟีเจอร์</div>
+  <div class="backup-warning">💾 เวอร์ชันนี้เก็บข้อมูลไว้ใน<b>เบราว์เซอร์เครื่องนี้เท่านั้น</b> (localStorage) — เสถียรกว่าเดิมมาก แต่ <b>ไม่ sync ข้ามอุปกรณ์อัตโนมัติ</b> และถ้าล้างข้อมูลเบราว์เซอร์/เปลี่ยนเครื่อง ข้อมูลจะหาย ใช้ Export/Import เพื่อย้ายข้อมูลข้ามอุปกรณ์เอง<br><br>🤖 ฟีเจอร์คำนวณแคลด้วย AI (ทั้งจากรูปถ่ายและชื่อวัตถุดิบ) <b>อาจใช้งานไม่ได้</b> เมื่อเปิดไฟล์นอกเว็บ Claude.ai — แต่การกรอกสารอาหารเองจากฉลาก (manual) และฐานข้อมูลอาหารในตัวยังใช้งานได้ปกติทุกฟีเจอร์</div>
   <div class="backup-section">
     <div class="backup-section-title">📤 Export (ส่งออกข้อมูลทั้งหมด)</div>
     <div class="backup-section-desc">ดาวน์โหลดไฟล์ .json รวมข้อมูลเซ็ตที่เล่น, การวิ่ง, มื้ออาหาร และรายการโปรดทั้งหมด</div>
@@ -1309,9 +1355,2412 @@ const DATA = {
   ],
 };
 
-const PROGRAM2_DATA = {"Upper":[{"n":"Machine Chest Press","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"DB Bench Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/qTSTOVVr8rU","sub1Url":"https://youtu.be/cJ8JrXUQ3xQ","sub2Url":"https://youtu.be/qmyToaabqdQ"},{"n":"Machine Chest Press (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"DB Bench Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/qTSTOVVr8rU","sub1Url":"https://youtu.be/cJ8JrXUQ3xQ","sub2Url":"https://youtu.be/qmyToaabqdQ"},{"n":"Machine Lat Pullover","sets":1,"reps":"8-10","warmup":"1-2","rest":"1-2 min","sub1":"DB Lat Pullover","sub2":"Cable Lat Pullover","note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/1MnsJ30Asic","sub1Url":"https://youtu.be/Es6M_gnziTs","sub2Url":"https://youtu.be/IJbGMtS5L_g"},{"n":"Machine Lat Pullover (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"DB Lat Pullover","sub2":"Cable Lat Pullover","note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/1MnsJ30Asic","sub1Url":"https://youtu.be/Es6M_gnziTs","sub2Url":"https://youtu.be/IJbGMtS5L_g"},{"n":"Pec Deck","sets":2,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"DB Flye","sub2":"Cable Flye","note":"Pause for 1 second at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/xei-JEpfAS4","sub1Url":"https://youtu.be/RnGCu_t0B3w","sub2Url":"https://youtu.be/FzWZ0eKMgoM"},{"n":"Chest-Supported T-Bar Row","sets":2,"reps":"6-8","warmup":"1-2","rest":"2-3 min","sub1":"Chest-Supported Machine Row","sub2":"Chest-Supported DB Row","note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/-FAxUZoPDc4","sub1Url":"https://youtu.be/QZ7VZpjNTG8","sub2Url":"https://youtu.be/Cmcv44jiQd0"},{"n":"Incline DB Y-Raise","sets":3,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Cable Y-Raise","sub2":"Machine Lateral Raise","note":"Use a 30° incline bench (back against the bench) and lift the weight up and out in a Y shape.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"N/A","rir":"0 / 0 / 0"},"9":{"tech":"N/A","rir":"0 / 0 / 0"},"10":{"tech":"N/A","rir":"0 / 0 / 0"},"11":{"tech":"N/A","rir":"0 / 0 / 0"},"12":{"tech":"N/A","rir":"0 / 0 / 0"}},"videoUrl":"https://youtu.be/xaOQJjzNrd8","sub1Url":"https://youtu.be/xxnjF6ljHmg","sub2Url":"https://youtu.be/nc6pAci8Tpg"}],"Lower":[{"n":"Seated Leg Curl","sets":3,"reps":"6-8","warmup":"1-2","rest":"1-2 min","sub1":"Lying Leg Curl","sub2":"Nordic Ham Curl","note":"Lean forward over the machine to get a maximum stretch in your hamstrings.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / 0"}},"videoUrl":"https://youtu.be/oWJBLChYZOQ","sub1Url":"https://youtu.be/y28L1m1PYUQ","sub2Url":"https://youtu.be/UbNb5Tsl46c"},{"n":"Hack Squat","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-4 min","sub1":"Smith Machine Squat","sub2":"Leg Press","note":"Use a controlled negative (don't free fall) and then explode on the positive.","weeks":{"1":{"tech":"N/A","rir":"2 / 3 / -"},"2":{"tech":"N/A","rir":"1 / 2 / -"},"3":{"tech":"N/A","rir":"1 / 2 / -"},"4":{"tech":"N/A","rir":"1 / 2 / -"},"5":{"tech":"N/A","rir":"0 / 2 / -"},"6":{"tech":"N/A","rir":"0 / 2 / -"},"7":{"tech":"N/A","rir":"2 / 3 / -"},"8":{"tech":"N/A","rir":"1 / 2 / -"},"9":{"tech":"N/A","rir":"1 / 2 / -"},"10":{"tech":"N/A","rir":"1 / 2 / -"},"11":{"tech":"N/A","rir":"0 / 2 / -"},"12":{"tech":"N/A","rir":"0 / 2 / -"}},"videoUrl":"https://youtu.be/o3ngCzuhkzw","sub1Url":"https://youtu.be/mPSL_De0y-4","sub2Url":"https://youtu.be/2Z0OClEXbDo"},{"n":"Leg Extension","sets":2,"reps":"6-8","warmup":"0-1","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/G0_M9LBCT0o","sub1Url":"https://youtu.be/aHS9tKzJXik","sub2Url":"https://youtu.be/Ma99aw-VDJQ"},{"n":"Leg Extension (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/G0_M9LBCT0o","sub1Url":"https://youtu.be/aHS9tKzJXik","sub2Url":"https://youtu.be/Ma99aw-VDJQ"},{"n":"DB Walking Lunge","sets":1,"reps":"10 per leg","warmup":"0-1","rest":"1-2 min","sub1":"Smith Machine Split Squat","sub2":"DB Reverse Lunge","note":"Take medium strides. Minimize contribution from the back leg","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/ZMlzo76Ldz0","sub1Url":"https://youtu.be/vRCd8Pz3tuI","sub2Url":"https://youtu.be/0FgdZlfXUSA"},{"n":"Standing Calf Raise","sets":3,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Donkey Calf Raise","sub2":"Leg Press Calf Press","note":"1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / 1"},"2":{"tech":"N/A","rir":"0 / 0 / 0"},"3":{"tech":"N/A","rir":"0 / 0 / 0"},"4":{"tech":"N/A","rir":"0 / 0 / 0"},"5":{"tech":"N/A","rir":"0 / 0 / 0"},"6":{"tech":"N/A","rir":"0 / 0 / 0"},"7":{"tech":"N/A","rir":"0 / 1 / 1"},"8":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"9":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"10":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"11":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"},"12":{"tech":"Weighted Static Hold (30 sec)","rir":"0 / 0 / 0"}},"videoUrl":"https://youtu.be/WMkCGNwo5ts","sub1Url":"https://youtu.be/LC9SO-pIXqA","sub2Url":"https://youtu.be/-mcxziH_KdM"},{"n":"Glute Kickback","sets":1,"reps":"30","warmup":"0-1","rest":"1-2 min","sub1":"45° Hyperextension","sub2":"Cable Pull-Through","note":"Perform Glute Kickbacks if you want to focus on your glutes. Perform 45° Hyperextension if you want to focus more on your lower back and hamstrings.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/JLS9Cvw_CHY","sub1Url":"https://youtu.be/1Rr1-FW6ZJs","sub2Url":"https://youtu.be/QchkytxGJBQ"}],"Push":[{"n":"Machine Shoulder Press","sets":2,"reps":"4-6","warmup":"2-3","rest":"2-3 min","sub1":"Seated DB Shoulder Press","sub2":"Seated Smith Machine Shoulder Press","note":"Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / -"},"2":{"tech":"N/A","rir":"0 / 1 / -"},"3":{"tech":"N/A","rir":"0 / 1 / -"},"4":{"tech":"N/A","rir":"0 / 1 / -"},"5":{"tech":"N/A","rir":"0 / 1 / -"},"6":{"tech":"N/A","rir":"0 / 1 / -"},"7":{"tech":"N/A","rir":"1 / 2 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 1 / -"}},"videoUrl":"https://youtu.be/0oycV4D84F0","sub1Url":"https://youtu.be/E8iX0ChUQbM","sub2Url":"https://youtu.be/J9zEpfM5Cjw"},{"n":"DB Bench Press","sets":1,"reps":"10","warmup":"2-3","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"Machine Chest Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/qmyToaabqdQ","sub1Url":"https://youtu.be/cJ8JrXUQ3xQ","sub2Url":"https://youtu.be/qTSTOVVr8rU"},{"n":"DB Bench Press (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Smith Machine Bench Press","sub2":"Machine Chest Press","note":"1 second pause at the bottom of each rep while maintaining tension on the pecs","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/qmyToaabqdQ","sub1Url":"https://youtu.be/cJ8JrXUQ3xQ","sub2Url":"https://youtu.be/qTSTOVVr8rU"},{"n":"Single-Leg Leg Extension","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"Reverse Nordic","sub2":"Sissy Squat","note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/tfOc1-AV9lg","sub1Url":"https://youtu.be/aHS9tKzJXik","sub2Url":"https://youtu.be/Ma99aw-VDJQ"},{"n":"Machine Lateral Raise","sets":1,"reps":"10","warmup":"0-1","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/nc6pAci8Tpg","sub1Url":"https://youtu.be/DX1WzS7k0Uc","sub2Url":"https://youtu.be/Z8OrSIk_574"},{"n":"Machine Lateral Raise (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/nc6pAci8Tpg","sub1Url":"https://youtu.be/DX1WzS7k0Uc","sub2Url":"https://youtu.be/Z8OrSIk_574"},{"n":"Cable Flye","sets":2,"reps":"10-12","warmup":"0-1","rest":"1-2 min","sub1":"Pec Deck","sub2":"DB Flye","note":"Focus on feeling a deep stretch in your pecs at the bottom of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/FzWZ0eKMgoM","sub1Url":"https://youtu.be/xei-JEpfAS4","sub2Url":"https://youtu.be/RnGCu_t0B3w"}],"Pull":[{"n":"Pull-Up (Wide Grip)","sets":3,"reps":"4-6","warmup":"1-2","rest":"2-3 min","sub1":"Lat Pulldown (Wide Grip)","sub2":"1-Arm Cable Pulldown","note":"Slow 2-3 second negative. Feel your lats pulling apart on the way down.","weeks":{"1":{"tech":"N/A","rir":"1 / 2 / 2"},"2":{"tech":"N/A","rir":"0 / 1 / 1"},"3":{"tech":"N/A","rir":"0 / 1 / 1"},"4":{"tech":"N/A","rir":"0 / 1 / 1"},"5":{"tech":"N/A","rir":"0 / 1 / 1"},"6":{"tech":"N/A","rir":"0 / 1 / 1"},"7":{"tech":"N/A","rir":"1 / 2 / 2"},"8":{"tech":"N/A","rir":"0 / 1 / 1"},"9":{"tech":"N/A","rir":"0 / 1 / 1"},"10":{"tech":"N/A","rir":"0 / 1 / 1"},"11":{"tech":"N/A","rir":"0 / 1 / 1"},"12":{"tech":"N/A","rir":"0 / 1 / 1"}},"videoUrl":"https://youtu.be/oB27u_w3pX4","sub1Url":"https://youtu.be/nDl3VjkLPQE","sub2Url":"https://youtu.be/01pnZt1uVFI"},{"n":"Stiff-Leg Deadlift","sets":2,"reps":"6-8","warmup":"2-3","rest":"2-3 min","sub1":"DB RDL","sub2":"Barbell RDL","note":"Keep your back flat and allow just a slight bend in your hamstrings.","weeks":{"1":{"tech":"N/A","rir":"2 / 3 / -"},"2":{"tech":"N/A","rir":"1 / 2 / -"},"3":{"tech":"N/A","rir":"1 / 2 / -"},"4":{"tech":"N/A","rir":"1 / 2 / -"},"5":{"tech":"N/A","rir":"1 / 2 / -"},"6":{"tech":"N/A","rir":"1 / 2 / -"},"7":{"tech":"N/A","rir":"2 / 3 / -"},"8":{"tech":"N/A","rir":"1 / 2 / -"},"9":{"tech":"N/A","rir":"1 / 2 / -"},"10":{"tech":"N/A","rir":"1 / 2 / -"},"11":{"tech":"N/A","rir":"1 / 2 / -"},"12":{"tech":"N/A","rir":"1 / 2 / -"}},"videoUrl":"https://youtu.be/OXsW3TJvn6g","sub1Url":"https://youtu.be/CaryZp20CuI","sub2Url":"https://youtu.be/xbnan2iNh-Q"},{"n":"Close-Grip Lat Pulldown","sets":1,"reps":"10","warmup":"1-2","rest":"2-3 min","sub1":"Close-Grip Pull-Up","sub2":"Close-Grip Seated Cable Row","note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/7l859qd4E48","sub1Url":"https://youtu.be/3DnqKKfz6wY","sub2Url":"https://youtu.be/eE4gq91O2CQ"},{"n":"Close-Grip Lat Pulldown (Match Set)","sets":1,"reps":"20","warmup":"0","rest":"2-3 min","sub1":"Close-Grip Pull-Up","sub2":"Close-Grip Seated Cable Row","note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.","weeks":{"1":{"tech":"N/A","rir":"1 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"1 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/7l859qd4E48","sub1Url":"https://youtu.be/3DnqKKfz6wY","sub2Url":"https://youtu.be/eE4gq91O2CQ"},{"n":"Chest-Supported Machine Row","sets":2,"reps":"4-6","warmup":"1-2","rest":"2-3 min","sub1":"Smith Machine Row","sub2":"DB Row","note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.","weeks":{"1":{"tech":"N/A","rir":"1 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"1 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/QZ7VZpjNTG8","sub1Url":"https://youtu.be/zhtw9cM3LIs","sub2Url":"https://youtu.be/sRFfRwqE49E"},{"n":"1-Arm Reverse Pec Deck","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"Lying Reverse DB Flye","sub2":"Reverse Cable Crossover","note":"Sweep the weight out to create the largest semi-circle possible with your arm.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/WkI6IHmYORY","sub1Url":"https://youtu.be/MXGZHJFQ9bE","sub2Url":"https://youtu.be/STZ3Twq5fgc"},{"n":"1-Arm Reverse Pec Deck (Match Set)","sets":1,"reps":"10","warmup":"0","rest":"1-2 min","sub1":"Lying Reverse DB Flye","sub2":"Reverse Cable Crossover","note":"Sweep the weight out to create the largest semi-circle possible with your arm.","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/WkI6IHmYORY","sub1Url":"https://youtu.be/MXGZHJFQ9bE","sub2Url":"https://youtu.be/STZ3Twq5fgc"},{"n":"Cable Crunch","sets":2,"reps":"6-8","warmup":"0-1","rest":"1-2 min","sub1":"Weighted Crunch","sub2":"Machine Crunch","note":"Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"9":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"10":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"11":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"},"12":{"tech":"Two Drop Sets (~25% per)","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/LvJM9V3D_CQ","sub1Url":"https://youtu.be/Q_n8cSQLhog","sub2Url":"https://youtu.be/KlxdhDSi5Dc"}],"Arms":[{"n":"S1: EZ-Bar Cheat Curl","sets":2,"reps":"4-6","warmup":"1","rest":"N/A","sub1":"DB Cheat Curl","sub2":"DB Curl","note":"Use some momentum to get the weight up, but be sure to control the weight on the way down!","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/E2fIvANy9BQ","sub1Url":"https://youtu.be/wJGtunD-CfU","sub2Url":"https://youtu.be/vneVQlN7LR4"},{"n":"S1: EZ-Bar Skull Crusher","sets":2,"reps":"6-8","warmup":"1","rest":"30-60 sec","sub1":"DB Skull Crusher","sub2":"Overhead Cable Triceps Extension","note":"Feel a deep stretch on the triceps throughout the entire negative. Pause for 1 second in the stretch part of each rep.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/1n6xrEI5g0Q","sub1Url":"https://youtu.be/i3h1LfCnnoQ","sub2Url":"https://youtu.be/7GvY7yTEepM"},{"n":"S2: Preacher Hammer Curl","sets":2,"reps":"6-8","warmup":"0-1","rest":"N/A","sub1":"DB Preacher Curl","sub2":"DB Hammer Curl","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/sInGFVj-bJA","sub1Url":"https://youtu.be/4ldFScblOz0","sub2Url":"https://youtu.be/AS4FeNiHyKg"},{"n":"S2: Triceps Pressdown","sets":2,"reps":"4-6","warmup":"0-1","rest":"30-60 sec","sub1":"Cable Triceps Kickback","sub2":"DB Triceps Kickback","note":"You can use a rope or bar attachment for these, whichever you find more comfortable.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"Myo-reps","rir":"0 / 0 / -"},"9":{"tech":"Myo-reps","rir":"0 / 0 / -"},"10":{"tech":"Myo-reps","rir":"0 / 0 / -"},"11":{"tech":"Myo-reps","rir":"0 / 0 / -"},"12":{"tech":"Myo-reps","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/B5S2mbg0g5c","sub1Url":"https://youtu.be/FGJ64JyKod0","sub2Url":"https://youtu.be/1pPaD8ZkceQ"},{"n":"S3: DB Wrist Curl","sets":2,"reps":"10-12","warmup":"0-1","rest":"N/A","sub1":"Cable Wrist Curl","sub2":"-","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/HJx1sIZKDqk","sub1Url":"https://youtu.be/S9NEwbiYEBE","sub2Url":null},{"n":"S3: DB Wrist Extension","sets":2,"reps":"10-12","warmup":"0-1","rest":"30-60 sec","sub1":"Cable Wrist Extension","sub2":"-","note":"Smooth, controlled reps.","weeks":{"1":{"tech":"N/A","rir":"0 / 1 / -"},"2":{"tech":"N/A","rir":"0 / 0 / -"},"3":{"tech":"N/A","rir":"0 / 0 / -"},"4":{"tech":"N/A","rir":"0 / 0 / -"},"5":{"tech":"N/A","rir":"0 / 0 / -"},"6":{"tech":"N/A","rir":"0 / 0 / -"},"7":{"tech":"N/A","rir":"0 / 1 / -"},"8":{"tech":"N/A","rir":"0 / 0 / -"},"9":{"tech":"N/A","rir":"0 / 0 / -"},"10":{"tech":"N/A","rir":"0 / 0 / -"},"11":{"tech":"N/A","rir":"0 / 0 / -"},"12":{"tech":"N/A","rir":"0 / 0 / -"}},"videoUrl":"https://youtu.be/uCAoI5FnLhs","sub1Url":"https://youtu.be/_KI-O0zMv60","sub2Url":null},{"n":"Single-Arm Machine Lateral Raise","sets":1,"reps":"20","warmup":"0-1","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/XlZYMCAcf64","sub1Url":"https://youtu.be/DX1WzS7k0Uc","sub2Url":"https://youtu.be/Z8OrSIk_574"},{"n":"Single-Arm Machine Lateral Raise (Match Set)","sets":1,"reps":"10","warmup":"0","rest":"1-2 min","sub1":"High-Cable Lateral Raise","sub2":"DB Lateral Raise","note":"Resist the negative on every rep and avoid pausing at the bottom","weeks":{"1":{"tech":"N/A","rir":"0 / - / -"},"2":{"tech":"N/A","rir":"0 / - / -"},"3":{"tech":"N/A","rir":"0 / - / -"},"4":{"tech":"N/A","rir":"0 / - / -"},"5":{"tech":"N/A","rir":"0 / - / -"},"6":{"tech":"N/A","rir":"0 / - / -"},"7":{"tech":"N/A","rir":"0 / - / -"},"8":{"tech":"N/A","rir":"0 / - / -"},"9":{"tech":"N/A","rir":"0 / - / -"},"10":{"tech":"N/A","rir":"0 / - / -"},"11":{"tech":"N/A","rir":"0 / - / -"},"12":{"tech":"N/A","rir":"0 / - / -"}},"videoUrl":"https://youtu.be/XlZYMCAcf64","sub1Url":"https://youtu.be/DX1WzS7k0Uc","sub2Url":"https://youtu.be/Z8OrSIk_574"}]};
+const PROGRAM2_DATA = {
+ "Upper":[
+  {
+   "n":"Machine Chest Press",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"2-3",
+   "rest":"2-3 min",
+   "sub1":"Smith Machine Bench Press",
+   "sub2":"DB Bench Press",
+   "note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/qTSTOVVr8rU",
+   "sub1Url":"https://youtu.be/cJ8JrXUQ3xQ",
+   "sub2Url":"https://youtu.be/qmyToaabqdQ"
+  },
+  {
+   "n":"Machine Chest Press (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"2-3 min",
+   "sub1":"Smith Machine Bench Press",
+   "sub2":"DB Bench Press",
+   "note":"1 second pause at the bottom of each rep while maintaining tension on the pecs.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/qTSTOVVr8rU",
+   "sub1Url":"https://youtu.be/cJ8JrXUQ3xQ",
+   "sub2Url":"https://youtu.be/qmyToaabqdQ"
+  },
+  {
+   "n":"Machine Lat Pullover",
+   "sets":1,
+   "reps":"8-10",
+   "warmup":"1-2",
+   "rest":"1-2 min",
+   "sub1":"DB Lat Pullover",
+   "sub2":"Cable Lat Pullover",
+   "note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/1MnsJ30Asic",
+   "sub1Url":"https://youtu.be/Es6M_gnziTs",
+   "sub2Url":"https://youtu.be/IJbGMtS5L_g"
+  },
+  {
+   "n":"Machine Lat Pullover (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"1-2 min",
+   "sub1":"DB Lat Pullover",
+   "sub2":"Cable Lat Pullover",
+   "note":"Smooth, controlled reps. Feel a deep stretch in your lats at the top of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/1MnsJ30Asic",
+   "sub1Url":"https://youtu.be/Es6M_gnziTs",
+   "sub2Url":"https://youtu.be/IJbGMtS5L_g"
+  },
+  {
+   "n":"Pec Deck",
+   "sets":2,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"DB Flye",
+   "sub2":"Cable Flye",
+   "note":"Pause for 1 second at the bottom of each rep while maintaining tension on the pecs",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/xei-JEpfAS4",
+   "sub1Url":"https://youtu.be/RnGCu_t0B3w",
+   "sub2Url":"https://youtu.be/FzWZ0eKMgoM"
+  },
+  {
+   "n":"Chest-Supported T-Bar Row",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"1-2",
+   "rest":"2-3 min",
+   "sub1":"Chest-Supported Machine Row",
+   "sub2":"Chest-Supported DB Row",
+   "note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "8":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/-FAxUZoPDc4",
+   "sub1Url":"https://youtu.be/QZ7VZpjNTG8",
+   "sub2Url":"https://youtu.be/Cmcv44jiQd0"
+  },
+  {
+   "n":"Incline DB Y-Raise",
+   "sets":3,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Cable Y-Raise",
+   "sub2":"Machine Lateral Raise",
+   "note":"Use a 30° incline bench (back against the bench) and lift the weight up and out in a Y shape.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    }
+   },
+   "videoUrl":"https://youtu.be/xaOQJjzNrd8",
+   "sub1Url":"https://youtu.be/xxnjF6ljHmg",
+   "sub2Url":"https://youtu.be/nc6pAci8Tpg"
+  }
+ ],
+ "Lower":[
+  {
+   "n":"Seated Leg Curl",
+   "sets":3,
+   "reps":"6-8",
+   "warmup":"1-2",
+   "rest":"1-2 min",
+   "sub1":"Lying Leg Curl",
+   "sub2":"Nordic Ham Curl",
+   "note":"Lean forward over the machine to get a maximum stretch in your hamstrings.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "8":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / 0"
+    },
+    "9":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / 0"
+    },
+    "10":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / 0"
+    },
+    "11":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / 0"
+    },
+    "12":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / 0"
+    }
+   },
+   "videoUrl":"https://youtu.be/oWJBLChYZOQ",
+   "sub1Url":"https://youtu.be/y28L1m1PYUQ",
+   "sub2Url":"https://youtu.be/UbNb5Tsl46c"
+  },
+  {
+   "n":"Hack Squat",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"2-3",
+   "rest":"2-4 min",
+   "sub1":"Smith Machine Squat",
+   "sub2":"Leg Press",
+   "note":"Use a controlled negative (don't free fall) and then explode on the positive.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"2 / 3 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 2 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 2 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"2 / 3 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 2 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 2 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/o3ngCzuhkzw",
+   "sub1Url":"https://youtu.be/mPSL_De0y-4",
+   "sub2Url":"https://youtu.be/2Z0OClEXbDo"
+  },
+  {
+   "n":"Leg Extension",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Reverse Nordic",
+   "sub2":"Sissy Squat",
+   "note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/G0_M9LBCT0o",
+   "sub1Url":"https://youtu.be/aHS9tKzJXik",
+   "sub2Url":"https://youtu.be/Ma99aw-VDJQ"
+  },
+  {
+   "n":"Leg Extension (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"1-2 min",
+   "sub1":"Reverse Nordic",
+   "sub2":"Sissy Squat",
+   "note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/G0_M9LBCT0o",
+   "sub1Url":"https://youtu.be/aHS9tKzJXik",
+   "sub2Url":"https://youtu.be/Ma99aw-VDJQ"
+  },
+  {
+   "n":"DB Walking Lunge",
+   "sets":1,
+   "reps":"10 per leg",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Smith Machine Split Squat",
+   "sub2":"DB Reverse Lunge",
+   "note":"Take medium strides. Minimize contribution from the back leg",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/ZMlzo76Ldz0",
+   "sub1Url":"https://youtu.be/vRCd8Pz3tuI",
+   "sub2Url":"https://youtu.be/0FgdZlfXUSA"
+  },
+  {
+   "n":"Standing Calf Raise",
+   "sets":3,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Donkey Calf Raise",
+   "sub2":"Leg Press Calf Press",
+   "note":"1-2 second pause at the bottom of each rep. Instead of just going up onto your toes, think about rolling your ankle back and forth on the balls of your feet.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / 0"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "8":{
+     "tech":"Weighted Static Hold (30 sec)",
+     "rir":"0 / 0 / 0"
+    },
+    "9":{
+     "tech":"Weighted Static Hold (30 sec)",
+     "rir":"0 / 0 / 0"
+    },
+    "10":{
+     "tech":"Weighted Static Hold (30 sec)",
+     "rir":"0 / 0 / 0"
+    },
+    "11":{
+     "tech":"Weighted Static Hold (30 sec)",
+     "rir":"0 / 0 / 0"
+    },
+    "12":{
+     "tech":"Weighted Static Hold (30 sec)",
+     "rir":"0 / 0 / 0"
+    }
+   },
+   "videoUrl":"https://youtu.be/WMkCGNwo5ts",
+   "sub1Url":"https://youtu.be/LC9SO-pIXqA",
+   "sub2Url":"https://youtu.be/-mcxziH_KdM"
+  },
+  {
+   "n":"Glute Kickback",
+   "sets":1,
+   "reps":"30",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"45° Hyperextension",
+   "sub2":"Cable Pull-Through",
+   "note":"Perform Glute Kickbacks if you want to focus on your glutes. Perform 45° Hyperextension if you want to focus more on your lower back and hamstrings.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/JLS9Cvw_CHY",
+   "sub1Url":"https://youtu.be/1Rr1-FW6ZJs",
+   "sub2Url":"https://youtu.be/QchkytxGJBQ"
+  }
+ ],
+ "Push":[
+  {
+   "n":"Machine Shoulder Press",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"2-3",
+   "rest":"2-3 min",
+   "sub1":"Seated DB Shoulder Press",
+   "sub2":"Seated Smith Machine Shoulder Press",
+   "note":"Ensure that your elbows break at least 90°. Mind-muscle connection with your delts. Smooth, controlled reps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "8":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 1 / -"
+    },
+    "9":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 1 / -"
+    },
+    "10":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 1 / -"
+    },
+    "11":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 1 / -"
+    },
+    "12":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 1 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/0oycV4D84F0",
+   "sub1Url":"https://youtu.be/E8iX0ChUQbM",
+   "sub2Url":"https://youtu.be/J9zEpfM5Cjw"
+  },
+  {
+   "n":"DB Bench Press",
+   "sets":1,
+   "reps":"10",
+   "warmup":"2-3",
+   "rest":"2-3 min",
+   "sub1":"Smith Machine Bench Press",
+   "sub2":"Machine Chest Press",
+   "note":"1 second pause at the bottom of each rep while maintaining tension on the pecs",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/qmyToaabqdQ",
+   "sub1Url":"https://youtu.be/cJ8JrXUQ3xQ",
+   "sub2Url":"https://youtu.be/qTSTOVVr8rU"
+  },
+  {
+   "n":"DB Bench Press (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"2-3 min",
+   "sub1":"Smith Machine Bench Press",
+   "sub2":"Machine Chest Press",
+   "note":"1 second pause at the bottom of each rep while maintaining tension on the pecs",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/qmyToaabqdQ",
+   "sub1Url":"https://youtu.be/cJ8JrXUQ3xQ",
+   "sub2Url":"https://youtu.be/qTSTOVVr8rU"
+  },
+  {
+   "n":"Single-Leg Leg Extension",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Reverse Nordic",
+   "sub2":"Sissy Squat",
+   "note":"Set the seat back as far as it will go while still feeling comfortable. Grab the handles as hard as you can to pull your butt down into the seat (using straps can help here).",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/tfOc1-AV9lg",
+   "sub1Url":"https://youtu.be/aHS9tKzJXik",
+   "sub2Url":"https://youtu.be/Ma99aw-VDJQ"
+  },
+  {
+   "n":"Machine Lateral Raise",
+   "sets":1,
+   "reps":"10",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"High-Cable Lateral Raise",
+   "sub2":"DB Lateral Raise",
+   "note":"Resist the negative on every rep and avoid pausing at the bottom",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/nc6pAci8Tpg",
+   "sub1Url":"https://youtu.be/DX1WzS7k0Uc",
+   "sub2Url":"https://youtu.be/Z8OrSIk_574"
+  },
+  {
+   "n":"Machine Lateral Raise (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"1-2 min",
+   "sub1":"High-Cable Lateral Raise",
+   "sub2":"DB Lateral Raise",
+   "note":"Resist the negative on every rep and avoid pausing at the bottom",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/nc6pAci8Tpg",
+   "sub1Url":"https://youtu.be/DX1WzS7k0Uc",
+   "sub2Url":"https://youtu.be/Z8OrSIk_574"
+  },
+  {
+   "n":"Cable Flye",
+   "sets":2,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Pec Deck",
+   "sub2":"DB Flye",
+   "note":"Focus on feeling a deep stretch in your pecs at the bottom of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/FzWZ0eKMgoM",
+   "sub1Url":"https://youtu.be/xei-JEpfAS4",
+   "sub2Url":"https://youtu.be/RnGCu_t0B3w"
+  }
+ ],
+ "Pull":[
+  {
+   "n":"Pull-Up (Wide Grip)",
+   "sets":3,
+   "reps":"4-6",
+   "warmup":"1-2",
+   "rest":"2-3 min",
+   "sub1":"Lat Pulldown (Wide Grip)",
+   "sub2":"1-Arm Cable Pulldown",
+   "note":"Slow 2-3 second negative. Feel your lats pulling apart on the way down.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / 2 / 2"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / 2 / 2"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 1 / 1"
+    }
+   },
+   "videoUrl":"https://youtu.be/oB27u_w3pX4",
+   "sub1Url":"https://youtu.be/nDl3VjkLPQE",
+   "sub2Url":"https://youtu.be/01pnZt1uVFI"
+  },
+  {
+   "n":"Stiff-Leg Deadlift",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"2-3",
+   "rest":"2-3 min",
+   "sub1":"DB RDL",
+   "sub2":"Barbell RDL",
+   "note":"Keep your back flat and allow just a slight bend in your hamstrings.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"2 / 3 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"2 / 3 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"1 / 2 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/OXsW3TJvn6g",
+   "sub1Url":"https://youtu.be/CaryZp20CuI",
+   "sub2Url":"https://youtu.be/xbnan2iNh-Q"
+  },
+  {
+   "n":"Close-Grip Lat Pulldown",
+   "sets":1,
+   "reps":"10",
+   "warmup":"1-2",
+   "rest":"2-3 min",
+   "sub1":"Close-Grip Pull-Up",
+   "sub2":"Close-Grip Seated Cable Row",
+   "note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/7l859qd4E48",
+   "sub1Url":"https://youtu.be/3DnqKKfz6wY",
+   "sub2Url":"https://youtu.be/eE4gq91O2CQ"
+  },
+  {
+   "n":"Close-Grip Lat Pulldown (Match Set)",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0",
+   "rest":"2-3 min",
+   "sub1":"Close-Grip Pull-Up",
+   "sub2":"Close-Grip Seated Cable Row",
+   "note":"Lean back by ~15° and drive your elbows down as you squeeze your shoulder blades together. This should feel like a mix of lats and mid-traps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/7l859qd4E48",
+   "sub1Url":"https://youtu.be/3DnqKKfz6wY",
+   "sub2Url":"https://youtu.be/eE4gq91O2CQ"
+  },
+  {
+   "n":"Chest-Supported Machine Row",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"1-2",
+   "rest":"2-3 min",
+   "sub1":"Smith Machine Row",
+   "sub2":"DB Row",
+   "note":"Flare elbows out at roughly 45° and squeeze your shoulder blades together hard at the top of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"1 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"1 / 1 / -"
+    },
+    "8":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/QZ7VZpjNTG8",
+   "sub1Url":"https://youtu.be/zhtw9cM3LIs",
+   "sub2Url":"https://youtu.be/sRFfRwqE49E"
+  },
+  {
+   "n":"1-Arm Reverse Pec Deck",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Lying Reverse DB Flye",
+   "sub2":"Reverse Cable Crossover",
+   "note":"Sweep the weight out to create the largest semi-circle possible with your arm.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/WkI6IHmYORY",
+   "sub1Url":"https://youtu.be/MXGZHJFQ9bE",
+   "sub2Url":"https://youtu.be/STZ3Twq5fgc"
+  },
+  {
+   "n":"1-Arm Reverse Pec Deck (Match Set)",
+   "sets":1,
+   "reps":"10",
+   "warmup":"0",
+   "rest":"1-2 min",
+   "sub1":"Lying Reverse DB Flye",
+   "sub2":"Reverse Cable Crossover",
+   "note":"Sweep the weight out to create the largest semi-circle possible with your arm.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/WkI6IHmYORY",
+   "sub1Url":"https://youtu.be/MXGZHJFQ9bE",
+   "sub2Url":"https://youtu.be/STZ3Twq5fgc"
+  },
+  {
+   "n":"Cable Crunch",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"Weighted Crunch",
+   "sub2":"Machine Crunch",
+   "note":"Round your lower back as you crunch. Maintain a mind-muscle connection with your 6-pack.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Two Drop Sets (~25% per)",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/LvJM9V3D_CQ",
+   "sub1Url":"https://youtu.be/Q_n8cSQLhog",
+   "sub2Url":"https://youtu.be/KlxdhDSi5Dc"
+  }
+ ],
+ "Arms":[
+  {
+   "n":"S1: EZ-Bar Cheat Curl",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"1",
+   "rest":"N/A",
+   "sub1":"DB Cheat Curl",
+   "sub2":"DB Curl",
+   "note":"Use some momentum to get the weight up, but be sure to control the weight on the way down!",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/E2fIvANy9BQ",
+   "sub1Url":"https://youtu.be/wJGtunD-CfU",
+   "sub2Url":"https://youtu.be/vneVQlN7LR4"
+  },
+  {
+   "n":"S1: EZ-Bar Skull Crusher",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"1",
+   "rest":"30-60 sec",
+   "sub1":"DB Skull Crusher",
+   "sub2":"Overhead Cable Triceps Extension",
+   "note":"Feel a deep stretch on the triceps throughout the entire negative. Pause for 1 second in the stretch part of each rep.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/1n6xrEI5g0Q",
+   "sub1Url":"https://youtu.be/i3h1LfCnnoQ",
+   "sub2Url":"https://youtu.be/7GvY7yTEepM"
+  },
+  {
+   "n":"S2: Preacher Hammer Curl",
+   "sets":2,
+   "reps":"6-8",
+   "warmup":"0-1",
+   "rest":"N/A",
+   "sub1":"DB Preacher Curl",
+   "sub2":"DB Hammer Curl",
+   "note":"Smooth, controlled reps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/sInGFVj-bJA",
+   "sub1Url":"https://youtu.be/4ldFScblOz0",
+   "sub2Url":"https://youtu.be/AS4FeNiHyKg"
+  },
+  {
+   "n":"S2: Triceps Pressdown",
+   "sets":2,
+   "reps":"4-6",
+   "warmup":"0-1",
+   "rest":"30-60 sec",
+   "sub1":"Cable Triceps Kickback",
+   "sub2":"DB Triceps Kickback",
+   "note":"You can use a rope or bar attachment for these, whichever you find more comfortable.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"Myo-reps",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/B5S2mbg0g5c",
+   "sub1Url":"https://youtu.be/FGJ64JyKod0",
+   "sub2Url":"https://youtu.be/1pPaD8ZkceQ"
+  },
+  {
+   "n":"S3: DB Wrist Curl",
+   "sets":2,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"N/A",
+   "sub1":"Cable Wrist Curl",
+   "sub2":"-",
+   "note":"Smooth, controlled reps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/HJx1sIZKDqk",
+   "sub1Url":"https://youtu.be/S9NEwbiYEBE",
+   "sub2Url":null
+  },
+  {
+   "n":"S3: DB Wrist Extension",
+   "sets":2,
+   "reps":"10-12",
+   "warmup":"0-1",
+   "rest":"30-60 sec",
+   "sub1":"Cable Wrist Extension",
+   "sub2":"-",
+   "note":"Smooth, controlled reps.",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / 1 / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / 0 / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/uCAoI5FnLhs",
+   "sub1Url":"https://youtu.be/_KI-O0zMv60",
+   "sub2Url":null
+  },
+  {
+   "n":"Single-Arm Machine Lateral Raise",
+   "sets":1,
+   "reps":"20",
+   "warmup":"0-1",
+   "rest":"1-2 min",
+   "sub1":"High-Cable Lateral Raise",
+   "sub2":"DB Lateral Raise",
+   "note":"Resist the negative on every rep and avoid pausing at the bottom",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/XlZYMCAcf64",
+   "sub1Url":"https://youtu.be/DX1WzS7k0Uc",
+   "sub2Url":"https://youtu.be/Z8OrSIk_574"
+  },
+  {
+   "n":"Single-Arm Machine Lateral Raise (Match Set)",
+   "sets":1,
+   "reps":"10",
+   "warmup":"0",
+   "rest":"1-2 min",
+   "sub1":"High-Cable Lateral Raise",
+   "sub2":"DB Lateral Raise",
+   "note":"Resist the negative on every rep and avoid pausing at the bottom",
+   "weeks":{
+    "1":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "2":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "3":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "4":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "5":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "6":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "7":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "8":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "9":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "10":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "11":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    },
+    "12":{
+     "tech":"N/A",
+     "rir":"0 / - / -"
+    }
+   },
+   "videoUrl":"https://youtu.be/XlZYMCAcf64",
+   "sub1Url":"https://youtu.be/DX1WzS7k0Uc",
+   "sub2Url":"https://youtu.be/Z8OrSIk_574"
+  }
+ ]
+};
 
-const WEEK_META = {"1":{"label":"Week 1","phase":"Intro Week","block":1},"2":{"label":"Week 2","phase":null,"block":1},"3":{"label":"Week 3","phase":null,"block":1},"4":{"label":"Week 4","phase":null,"block":1},"5":{"label":"Week 5","phase":null,"block":1},"6":{"label":"Week 6","phase":null,"block":1},"7":{"label":"Week 7","phase":"Deload Week","block":2},"8":{"label":"Week 8","phase":null,"block":2},"9":{"label":"Week 9","phase":null,"block":2},"10":{"label":"Week 10","phase":null,"block":2},"11":{"label":"Week 11","phase":null,"block":2},"12":{"label":"Week 12","phase":null,"block":2}};
+const WEEK_META = {
+ "1":{
+  "label":"Week 1",
+  "phase":"Intro Week",
+  "block":1
+ },
+ "2":{
+  "label":"Week 2",
+  "phase":null,
+  "block":1
+ },
+ "3":{
+  "label":"Week 3",
+  "phase":null,
+  "block":1
+ },
+ "4":{
+  "label":"Week 4",
+  "phase":null,
+  "block":1
+ },
+ "5":{
+  "label":"Week 5",
+  "phase":null,
+  "block":1
+ },
+ "6":{
+  "label":"Week 6",
+  "phase":null,
+  "block":1
+ },
+ "7":{
+  "label":"Week 7",
+  "phase":"Deload Week",
+  "block":2
+ },
+ "8":{
+  "label":"Week 8",
+  "phase":null,
+  "block":2
+ },
+ "9":{
+  "label":"Week 9",
+  "phase":null,
+  "block":2
+ },
+ "10":{
+  "label":"Week 10",
+  "phase":null,
+  "block":2
+ },
+ "11":{
+  "label":"Week 11",
+  "phase":null,
+  "block":2
+ },
+ "12":{
+  "label":"Week 12",
+  "phase":null,
+  "block":2
+ }
+};
 
 // Exercise-specific warm-up protocol (% of planned working weight)
 const WARMUP_PROTOCOL = {
@@ -1620,6 +4069,21 @@ function renderMain(){
 }
 
 // ---------- Category view ----------
+async function getWorkoutHistoryHtml(cat, limit){
+  limit = limit || 6;
+  const sessions = await loadEntries(WORKOUT_SESSION_KEY);
+  const filtered = sessions.filter(s=> s.cat === cat);
+  if(!filtered.length) return '';
+  const byDate = {};
+  filtered.forEach(s=>{ byDate[s.date] = (byDate[s.date]||0) + (s.durationMin||0); });
+  const dates = Object.keys(byDate).sort((a,b)=> b.localeCompare(a)).slice(0, limit);
+  const today = todayStr();
+  const rows = dates.map(d=>
+    '<div class="workout-hist-row"><span>'+(d===today?'วันนี้ · ':'')+fmtDate(d)+'</span><span>'+byDate[d]+' นาที</span></div>'
+  ).join('');
+  return '<div class="workout-hist-card"><div class="workout-hist-title">⏱ ประวัติเวลาออกกำลังกาย — '+cat+'</div>'+rows+'</div>';
+}
+
 async function renderCategoryView(main){
   const currentCat = currentView.cat;
   const program = currentProgram;
@@ -1629,7 +4093,8 @@ async function renderCategoryView(main){
   const phaseBanner = weekMeta && weekMeta.phase
     ? '<div class="phase-banner">'+(weekMeta.phase==='Deload Week' ? '🌤 Deload Week — ส่วนใหญ่เซ็ตจะเบากว่าปกติ (RIR สูงขึ้น) เน้นฟอร์ม ไม่ต้องฝืนหนักสุด' : '🌱 Intro Week — สัปดาห์เริ่มต้น เซ็ตส่วนใหญ่เว้น 1-2 ครั้งจาก failure ให้ร่างกายปรับตัวก่อน')+'</div>'
     : '';
-  main.innerHTML = phaseBanner + '<div class="section-label">'+currentCat+(program==='p2' ? ' · WEEK '+week : '')+'</div>';
+  const workoutHistHtml = await getWorkoutHistoryHtml(currentCat);
+  main.innerHTML = phaseBanner + workoutHistHtml + '<div class="section-label">'+currentCat+(program==='p2' ? ' · WEEK '+week : '')+'</div>';
   const list = document.createElement('div');
   main.appendChild(list);
 
@@ -2410,6 +4875,82 @@ document.getElementById('saveRunBtn').addEventListener('click', async ()=>{
   renderMain();
 });
 
+// ---------- Workout session stopwatch ----------
+const WORKOUT_SESSION_KEY = "workout:sessions";
+const WORKOUT_ACTIVE_KEY = "workout:active";
+let workoutState = { running:false, startTs:null, intervalId:null, cat:null };
+
+function fmtElapsed(sec){
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  if(h>0) return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function updateWorkoutDisplay(){
+  const btn = document.getElementById('workoutFabBtn');
+  const label = document.getElementById('workoutFabLabel');
+  if(!btn || !label) return;
+  if(workoutState.running && workoutState.startTs){
+    const elapsedSec = Math.floor((Date.now() - workoutState.startTs)/1000);
+    label.textContent = fmtElapsed(elapsedSec);
+    btn.classList.add('running');
+  } else {
+    label.textContent = 'เริ่ม';
+    btn.classList.remove('running');
+  }
+}
+
+async function startWorkoutSession(){
+  if(currentView.mode !== 'category'){
+    showToast('ไปที่หน้าตารางเทรน (Upper/Lower/ฯลฯ) ก่อนเริ่มจับเวลา');
+    return;
+  }
+  workoutState.running = true;
+  workoutState.startTs = Date.now();
+  workoutState.cat = currentView.cat;
+  await saveEntries(WORKOUT_ACTIVE_KEY, {startTs: workoutState.startTs, cat: workoutState.cat});
+  updateWorkoutDisplay();
+  if(workoutState.intervalId) clearInterval(workoutState.intervalId);
+  workoutState.intervalId = setInterval(updateWorkoutDisplay, 1000);
+  showToast('🏋️ เริ่มจับเวลา '+workoutState.cat+' แล้ว');
+}
+
+async function stopWorkoutSession(){
+  if(!workoutState.startTs) return;
+  const endTs = Date.now();
+  const durationMin = Math.max(1, Math.round((endTs - workoutState.startTs)/60000));
+  const date = todayStr();
+  const cat = workoutState.cat || 'ทั่วไป';
+  let sessions = await loadEntries(WORKOUT_SESSION_KEY);
+  sessions.push({ id: Date.now(), date, cat, startTs: workoutState.startTs, endTs, durationMin });
+  await saveEntries(WORKOUT_SESSION_KEY, sessions);
+  await saveEntries(WORKOUT_ACTIVE_KEY, null);
+  if(workoutState.intervalId) clearInterval(workoutState.intervalId);
+  workoutState = { running:false, startTs:null, intervalId:null, cat:null };
+  updateWorkoutDisplay();
+  showToast('✅ บันทึกเวลา '+cat+': '+durationMin+' นาที');
+  renderMain();
+}
+
+document.getElementById('workoutFabBtn').addEventListener('click', async ()=>{
+  if(workoutState.running) await stopWorkoutSession();
+  else await startWorkoutSession();
+});
+
+// Resume an in-progress session if the app was closed/reopened mid-workout
+(async ()=>{
+  try{
+    const active = await loadEntries(WORKOUT_ACTIVE_KEY);
+    if(active && active.startTs){
+      workoutState.running = true;
+      workoutState.startTs = active.startTs;
+      workoutState.cat = active.cat || null;
+      updateWorkoutDisplay();
+      workoutState.intervalId = setInterval(updateWorkoutDisplay, 1000);
+    }
+  }catch(e){}
+})();
+
 // ---------- Body weight tracking ----------
 const WEIGHT_KEY = "bodyweight:log";
 
@@ -2526,7 +5067,7 @@ document.getElementById('saveWeightBtn').addEventListener('click', async ()=>{
 async function buildMonthActivity(year, month){
   const map = {};
   function ensure(date){
-    if(!map[date]) map[date] = { cats: new Set(), ran:false, runInfo:null, catExercises:{}, p2:false, p2Exercises:[] };
+    if(!map[date]) map[date] = { cats: new Set(), ran:false, runInfo:null, catExercises:{}, p2:false, p2Exercises:[], workoutMin:0, workoutByCat:{} };
     return map[date];
   }
   const prefix = year + "-" + String(month+1).padStart(2,'0');
@@ -2564,6 +5105,16 @@ async function buildMonthActivity(year, month){
       const d = ensure(e.date);
       d.ran = true;
       d.runInfo = e;
+    }
+  });
+  const workoutSessions = await loadEntries(WORKOUT_SESSION_KEY);
+  workoutSessions.forEach(e=>{
+    if(e.date && e.date.startsWith(prefix)){
+      const d = ensure(e.date);
+      const cat = e.cat || 'ทั่วไป';
+      if(!d.workoutByCat) d.workoutByCat = {};
+      d.workoutByCat[cat] = (d.workoutByCat[cat]||0) + (e.durationMin||0);
+      d.workoutMin = (d.workoutMin||0) + (e.durationMin||0);
     }
   });
   return map;
@@ -2697,6 +5248,10 @@ function renderDayDetail(dateStr, info){
     const r = info.runInfo;
     const pace = paceStr(r.distanceKm, r.durationMin);
     html += '<div class="cal-day-line"><span style="color:'+RUN_COLOR+'">●</span> วิ่ง '+(parseFloat(r.distanceKm)||0)+' กม. · '+(parseFloat(r.durationMin)||0)+' นาที'+(pace?' · '+pace:'')+(r.avgHr?' · HR '+r.avgHr:'')+'</div>';
+  }
+  if(info.workoutByCat && Object.keys(info.workoutByCat).length){
+    const parts = Object.keys(info.workoutByCat).map(cat=> cat+' '+info.workoutByCat[cat]+' นาที').join(', ');
+    html += '<div class="cal-day-line"><span style="color:var(--gold)">●</span> เวลาออกกำลังกาย: '+parts+'</div>';
   }
   html += '</div>';
   wrap.innerHTML = html;
@@ -3030,6 +5585,758 @@ function closeGuidelineSheet(){
 glBackdrop.addEventListener('click', closeGuidelineSheet);
 
 // ---------- Nutrition / calorie tracking ----------
+const FOOD_DATABASE = [
+ {
+  "n":"อกไก่ไม่ติดหนัง สุก (Chicken Breast, cooked)",
+  "kcal":165,
+  "p":31,
+  "c":0,
+  "f":3.6
+ },
+ {
+  "n":"สะโพกไก่ไม่ติดหนัง สุก (Chicken Thigh, cooked)",
+  "kcal":179,
+  "p":24,
+  "c":0,
+  "f":8.6
+ },
+ {
+  "n":"ไก่ติดหนัง สุก (Chicken with Skin, cooked)",
+  "kcal":239,
+  "p":27,
+  "c":0,
+  "f":14
+ },
+ {
+  "n":"ไข่ไก่ทั้งฟอง (Whole Egg)",
+  "kcal":143,
+  "p":13,
+  "c":1.1,
+  "f":9.5
+ },
+ {
+  "n":"ไข่ขาว (Egg White)",
+  "kcal":52,
+  "p":11,
+  "c":0.7,
+  "f":0.2
+ },
+ {
+  "n":"หมูสันใน สุก (Pork Tenderloin, cooked)",
+  "kcal":143,
+  "p":26,
+  "c":0,
+  "f":3.5
+ },
+ {
+  "n":"หมูสามชั้น (Pork Belly)",
+  "kcal":518,
+  "p":9.3,
+  "c":0,
+  "f":53
+ },
+ {
+  "n":"หมูบด สุก (Ground Pork, cooked)",
+  "kcal":263,
+  "p":17,
+  "c":0,
+  "f":21
+ },
+ {
+  "n":"เนื้อวัวสันนอก สุก (Beef Sirloin, cooked)",
+  "kcal":183,
+  "p":26,
+  "c":0,
+  "f":8.5
+ },
+ {
+  "n":"เนื้อวัวบด สุก (Ground Beef 80/20, cooked)",
+  "kcal":254,
+  "p":17,
+  "c":0,
+  "f":20
+ },
+ {
+  "n":"ปลาแซลมอน สุก (Salmon, cooked)",
+  "kcal":208,
+  "p":20,
+  "c":0,
+  "f":13
+ },
+ {
+  "n":"ปลาทูน่ากระป๋อง (แช่น้ำ) (Canned Tuna in Water)",
+  "kcal":116,
+  "p":26,
+  "c":0,
+  "f":0.8
+ },
+ {
+  "n":"ปลานิล สุก (Tilapia, cooked)",
+  "kcal":96,
+  "p":20,
+  "c":0,
+  "f":1.7
+ },
+ {
+  "n":"กุ้ง สุก (Shrimp, cooked)",
+  "kcal":99,
+  "p":24,
+  "c":0.2,
+  "f":0.3
+ },
+ {
+  "n":"ปลาหมึก (Squid)",
+  "kcal":92,
+  "p":15.6,
+  "c":3.1,
+  "f":1.4
+ },
+ {
+  "n":"เต้าหู้แข็ง (Firm Tofu)",
+  "kcal":144,
+  "p":15.7,
+  "c":2.8,
+  "f":8.7
+ },
+ {
+  "n":"เต้าหู้อ่อน (Soft Tofu)",
+  "kcal":55,
+  "p":5.9,
+  "c":1.9,
+  "f":3.0
+ },
+ {
+  "n":"เทมเป้ (Tempeh)",
+  "kcal":193,
+  "p":19,
+  "c":9.4,
+  "f":11
+ },
+ {
+  "n":"เวย์โปรตีนผง (Whey Protein Powder)",
+  "kcal":400,
+  "p":80,
+  "c":8,
+  "f":6.5
+ },
+ {
+  "n":"ไส้กรอกไก่ (Chicken Sausage)",
+  "kcal":172,
+  "p":14,
+  "c":6,
+  "f":10
+ },
+ {
+  "n":"แฮมหมู (Ham)",
+  "kcal":145,
+  "p":18,
+  "c":1.5,
+  "f":7
+ },
+ {
+  "n":"ข้าวสวย ข้าวขาว (White Rice, cooked)",
+  "kcal":130,
+  "p":2.7,
+  "c":28,
+  "f":0.3
+ },
+ {
+  "n":"ข้าวกล้อง (Brown Rice, cooked)",
+  "kcal":123,
+  "p":2.7,
+  "c":26,
+  "f":1.0
+ },
+ {
+  "n":"ข้าวเหนียว (Sticky/Glutinous Rice, cooked)",
+  "kcal":169,
+  "p":3.5,
+  "c":37,
+  "f":0.3
+ },
+ {
+  "n":"ก๋วยเตี๋ยวเส้นเล็ก/เส้นใหญ่ (Rice Noodles, cooked)",
+  "kcal":109,
+  "p":1.8,
+  "c":25,
+  "f":0.2
+ },
+ {
+  "n":"บะหมี่ไข่ (Egg Noodles, cooked)",
+  "kcal":138,
+  "p":4.5,
+  "c":25,
+  "f":2.1
+ },
+ {
+  "n":"วุ้นเส้น (Glass/Vermicelli Noodles, cooked)",
+  "kcal":95,
+  "p":0.1,
+  "c":23,
+  "f":0.1
+ },
+ {
+  "n":"ขนมปังขาว (White Bread)",
+  "kcal":265,
+  "p":9,
+  "c":49,
+  "f":3.2
+ },
+ {
+  "n":"ขนมปังโฮลวีต (Whole Wheat Bread)",
+  "kcal":247,
+  "p":13,
+  "c":41,
+  "f":3.4
+ },
+ {
+  "n":"โอ๊ตมีล ข้าวโอ๊ตดิบ (Rolled Oats, dry)",
+  "kcal":389,
+  "p":16.9,
+  "c":66,
+  "f":6.9
+ },
+ {
+  "n":"มันหวาน (Sweet Potato, cooked)",
+  "kcal":90,
+  "p":2.0,
+  "c":21,
+  "f":0.1
+ },
+ {
+  "n":"มันฝรั่ง (Potato, cooked)",
+  "kcal":87,
+  "p":1.9,
+  "c":20,
+  "f":0.1
+ },
+ {
+  "n":"ข้าวโพด (Corn)",
+  "kcal":96,
+  "p":3.4,
+  "c":21,
+  "f":1.5
+ },
+ {
+  "n":"ควินัว (Quinoa, cooked)",
+  "kcal":120,
+  "p":4.4,
+  "c":21,
+  "f":1.9
+ },
+ {
+  "n":"เผือก (Taro, cooked)",
+  "kcal":112,
+  "p":1.5,
+  "c":26,
+  "f":0.2
+ },
+ {
+  "n":"น้ำมันมะกอก (Olive Oil)",
+  "kcal":884,
+  "p":0,
+  "c":0,
+  "f":100
+ },
+ {
+  "n":"น้ำมันพืช (Vegetable Oil)",
+  "kcal":884,
+  "p":0,
+  "c":0,
+  "f":100
+ },
+ {
+  "n":"กะทิ (Coconut Milk)",
+  "kcal":230,
+  "p":2.3,
+  "c":5.5,
+  "f":24
+ },
+ {
+  "n":"เนยถั่ว (Peanut Butter)",
+  "kcal":588,
+  "p":25,
+  "c":20,
+  "f":50
+ },
+ {
+  "n":"อัลมอนด์ (Almonds)",
+  "kcal":579,
+  "p":21,
+  "c":22,
+  "f":50
+ },
+ {
+  "n":"เม็ดมะม่วงหิมพานต์ (Cashew Nuts)",
+  "kcal":553,
+  "p":18,
+  "c":30,
+  "f":44
+ },
+ {
+  "n":"ถั่วลิสง (Peanuts)",
+  "kcal":567,
+  "p":26,
+  "c":16,
+  "f":49
+ },
+ {
+  "n":"อะโวคาโด (Avocado)",
+  "kcal":160,
+  "p":2.0,
+  "c":8.5,
+  "f":15
+ },
+ {
+  "n":"เมล็ดเจีย (Chia Seeds)",
+  "kcal":486,
+  "p":17,
+  "c":42,
+  "f":31
+ },
+ {
+  "n":"เนย (Butter)",
+  "kcal":717,
+  "p":0.9,
+  "c":0.1,
+  "f":81
+ },
+ {
+  "n":"นมสด (Whole Milk)",
+  "kcal":61,
+  "p":3.2,
+  "c":4.8,
+  "f":3.3
+ },
+ {
+  "n":"นมพร่องมันเนย (Skim Milk)",
+  "kcal":34,
+  "p":3.4,
+  "c":5,
+  "f":0.1
+ },
+ {
+  "n":"กรีกโยเกิร์ต (Greek Yogurt, plain)",
+  "kcal":59,
+  "p":10,
+  "c":3.6,
+  "f":0.4
+ },
+ {
+  "n":"โยเกิร์ตธรรมดา (Plain Yogurt)",
+  "kcal":61,
+  "p":3.5,
+  "c":4.7,
+  "f":3.3
+ },
+ {
+  "n":"ชีสเชดดาร์ (Cheddar Cheese)",
+  "kcal":403,
+  "p":25,
+  "c":1.3,
+  "f":33
+ },
+ {
+  "n":"ชีสมอสซาเรลลา (Mozzarella Cheese)",
+  "kcal":280,
+  "p":28,
+  "c":3.1,
+  "f":17
+ },
+ {
+  "n":"นมข้นจืดระเหย (Evaporated Milk)",
+  "kcal":134,
+  "p":6.8,
+  "c":10,
+  "f":7.6
+ },
+ {
+  "n":"กล้วยน้ำว้า/หอม (Banana)",
+  "kcal":89,
+  "p":1.1,
+  "c":23,
+  "f":0.3
+ },
+ {
+  "n":"แอปเปิ้ล (Apple)",
+  "kcal":52,
+  "p":0.3,
+  "c":14,
+  "f":0.2
+ },
+ {
+  "n":"ส้ม (Orange)",
+  "kcal":47,
+  "p":0.9,
+  "c":12,
+  "f":0.1
+ },
+ {
+  "n":"มะละกอ (Papaya)",
+  "kcal":43,
+  "p":0.5,
+  "c":11,
+  "f":0.3
+ },
+ {
+  "n":"มะม่วงสุก (Mango)",
+  "kcal":60,
+  "p":0.8,
+  "c":15,
+  "f":0.4
+ },
+ {
+  "n":"แก้วมังกร (Dragon Fruit)",
+  "kcal":60,
+  "p":1.2,
+  "c":13,
+  "f":0.4
+ },
+ {
+  "n":"แตงโม (Watermelon)",
+  "kcal":30,
+  "p":0.6,
+  "c":8,
+  "f":0.2
+ },
+ {
+  "n":"องุ่น (Grapes)",
+  "kcal":69,
+  "p":0.7,
+  "c":18,
+  "f":0.2
+ },
+ {
+  "n":"สับปะรด (Pineapple)",
+  "kcal":50,
+  "p":0.5,
+  "c":13,
+  "f":0.1
+ },
+ {
+  "n":"สตรอว์เบอร์รี่ (Strawberries)",
+  "kcal":32,
+  "p":0.7,
+  "c":7.7,
+  "f":0.3
+ },
+ {
+  "n":"บลูเบอร์รี่ (Blueberries)",
+  "kcal":57,
+  "p":0.7,
+  "c":14,
+  "f":0.3
+ },
+ {
+  "n":"ฝรั่ง (Guava)",
+  "kcal":68,
+  "p":2.6,
+  "c":14,
+  "f":1.0
+ },
+ {
+  "n":"ลองกอง/ลำไย (Longan)",
+  "kcal":60,
+  "p":1.3,
+  "c":15,
+  "f":0.1
+ },
+ {
+  "n":"ผักบุ้ง (Morning Glory)",
+  "kcal":19,
+  "p":2.6,
+  "c":3.1,
+  "f":0.2
+ },
+ {
+  "n":"กะหล่ำปลี (Cabbage)",
+  "kcal":25,
+  "p":1.3,
+  "c":5.8,
+  "f":0.1
+ },
+ {
+  "n":"บรอกโคลี (Broccoli)",
+  "kcal":34,
+  "p":2.8,
+  "c":6.6,
+  "f":0.4
+ },
+ {
+  "n":"คะน้า (Chinese Kale/Kale)",
+  "kcal":49,
+  "p":4.3,
+  "c":9,
+  "f":0.9
+ },
+ {
+  "n":"แตงกวา (Cucumber)",
+  "kcal":15,
+  "p":0.7,
+  "c":3.6,
+  "f":0.1
+ },
+ {
+  "n":"มะเขือเทศ (Tomato)",
+  "kcal":18,
+  "p":0.9,
+  "c":3.9,
+  "f":0.2
+ },
+ {
+  "n":"แครอท (Carrot)",
+  "kcal":41,
+  "p":0.9,
+  "c":10,
+  "f":0.2
+ },
+ {
+  "n":"ถั่วงอก (Bean Sprouts)",
+  "kcal":30,
+  "p":3.0,
+  "c":5.9,
+  "f":0.2
+ },
+ {
+  "n":"ผักกาดขาว (Chinese Cabbage/Napa)",
+  "kcal":13,
+  "p":1.2,
+  "c":2.2,
+  "f":0.2
+ },
+ {
+  "n":"ต้นหอม (Green Onion/Scallion)",
+  "kcal":32,
+  "p":1.8,
+  "c":7.3,
+  "f":0.2
+ },
+ {
+  "n":"พริกหวาน (Bell Pepper)",
+  "kcal":31,
+  "p":1.0,
+  "c":6,
+  "f":0.3
+ },
+ {
+  "n":"เห็ดฟาง/เห็ดทั่วไป (Mushroom)",
+  "kcal":22,
+  "p":3.1,
+  "c":3.3,
+  "f":0.3
+ },
+ {
+  "n":"หน่อไม้ฝรั่ง (Asparagus)",
+  "kcal":20,
+  "p":2.2,
+  "c":3.9,
+  "f":0.1
+ },
+ {
+  "n":"ถั่วเขียว (Mung Beans, cooked)",
+  "kcal":105,
+  "p":7,
+  "c":19,
+  "f":0.4
+ },
+ {
+  "n":"ถั่วดำ (Black Beans, cooked)",
+  "kcal":132,
+  "p":8.9,
+  "c":24,
+  "f":0.5
+ },
+ {
+  "n":"ถั่วชิกพี (Chickpeas, cooked)",
+  "kcal":164,
+  "p":8.9,
+  "c":27,
+  "f":2.6
+ },
+ {
+  "n":"ถั่วเลนทิล (Lentils, cooked)",
+  "kcal":116,
+  "p":9,
+  "c":20,
+  "f":0.4
+ },
+ {
+  "n":"ถั่วแระ/เอดามาเมะ (Edamame)",
+  "kcal":121,
+  "p":11,
+  "c":10,
+  "f":5.2
+ },
+ {
+  "n":"น้ำปลา (Fish Sauce)",
+  "kcal":35,
+  "p":5.1,
+  "c":3.6,
+  "f":0
+ },
+ {
+  "n":"ซีอิ๊วขาว (Soy Sauce)",
+  "kcal":53,
+  "p":8,
+  "c":4.9,
+  "f":0.6
+ },
+ {
+  "n":"น้ำตาลทราย (White Sugar)",
+  "kcal":387,
+  "p":0,
+  "c":100,
+  "f":0
+ },
+ {
+  "n":"น้ำตาลมะพร้าว (Coconut/Palm Sugar)",
+  "kcal":375,
+  "p":0.4,
+  "c":95,
+  "f":0.3
+ },
+ {
+  "n":"น้ำมันหอย (Oyster Sauce)",
+  "kcal":51,
+  "p":1.4,
+  "c":11,
+  "f":0.3
+ },
+ {
+  "n":"มายองเนส (Mayonnaise)",
+  "kcal":680,
+  "p":1.0,
+  "c":0.6,
+  "f":75
+ },
+ {
+  "n":"ซอสมะเขือเทศ (Ketchup)",
+  "kcal":112,
+  "p":1.3,
+  "c":26,
+  "f":0.2
+ },
+ {
+  "n":"ข้าวผัด (Fried Rice, generic)",
+  "kcal":168,
+  "p":4.5,
+  "c":25,
+  "f":5.5
+ },
+ {
+  "n":"ผัดกะเพรา (Pad Kra Pao, meat+basil, no rice)",
+  "kcal":170,
+  "p":15,
+  "c":6,
+  "f":10
+ },
+ {
+  "n":"ต้มยำ (Tom Yum, no rice)",
+  "kcal":45,
+  "p":5,
+  "c":3,
+  "f":1.5
+ },
+ {
+  "n":"แกงเขียวหวาน (Green Curry, no rice)",
+  "kcal":125,
+  "p":8,
+  "c":5,
+  "f":8.5
+ },
+ {
+  "n":"ส้มตำ (Som Tum/Papaya Salad)",
+  "kcal":60,
+  "p":1.5,
+  "c":12,
+  "f":0.8
+ },
+ {
+  "n":"ไข่เจียว (Thai Omelette)",
+  "kcal":196,
+  "p":11,
+  "c":1.5,
+  "f":16
+ },
+ {
+  "n":"ไข่ต้ม (Boiled Egg)",
+  "kcal":155,
+  "p":13,
+  "c":1.1,
+  "f":11
+ },
+ {
+  "n":"สลัดผักรวม ไม่ใส่น้ำสลัด (Mixed Salad, no dressing)",
+  "kcal":20,
+  "p":1.5,
+  "c":4,
+  "f":0.2
+ },
+ {
+  "n":"อกไก่ไม่ติดหนัง ดิบ (Chicken Breast, raw)",
+  "kcal":120,
+  "p":22.5,
+  "c":0,
+  "f":2.6
+ },
+ {
+  "n":"สะโพกไก่ไม่ติดหนัง ดิบ (Chicken Thigh, raw)",
+  "kcal":128,
+  "p":18.6,
+  "c":0,
+  "f":5.7
+ },
+ {
+  "n":"หมูสันใน ดิบ (Pork Tenderloin, raw)",
+  "kcal":108,
+  "p":20.9,
+  "c":0,
+  "f":2.2
+ },
+ {
+  "n":"หมูบด ดิบ (Ground Pork, raw)",
+  "kcal":242,
+  "p":16.9,
+  "c":0,
+  "f":18.9
+ },
+ {
+  "n":"เนื้อวัวสันนอก ดิบ (Beef Sirloin, raw)",
+  "kcal":137,
+  "p":21,
+  "c":0,
+  "f":5.0
+ },
+ {
+  "n":"เนื้อวัวบด ดิบ (Ground Beef 80/20, raw)",
+  "kcal":254,
+  "p":17.2,
+  "c":0,
+  "f":20
+ },
+ {
+  "n":"ปลาแซลมอน ดิบ (Salmon, raw)",
+  "kcal":142,
+  "p":20,
+  "c":0,
+  "f":6.3
+ },
+ {
+  "n":"ปลานิล ดิบ (Tilapia, raw)",
+  "kcal":96,
+  "p":20.1,
+  "c":0,
+  "f":1.7
+ },
+ {
+  "n":"กุ้ง ดิบ (Shrimp, raw)",
+  "kcal":85,
+  "p":20.3,
+  "c":0.2,
+  "f":0.5
+ }
+];
+
 const FOOD_KEY = "nutrition:log";
 const DAY_CONTEXT_KEY = "nutrition:today-context";
 const NUTRI_TARGET = { kcal: 1825, protein: 155, fat: 50, carb: 180 }; // fallback before a day type is chosen
@@ -3123,11 +6430,17 @@ async function computeWeeklyRecap(){
     if(dayTotal >= NUTRI_BASE_TARGETS.training.protein) proteinHitDays++;
   });
 
+  const workoutSessions = await loadEntries(WORKOUT_SESSION_KEY);
+  const workoutMinLast7 = workoutSessions
+    .filter(e=> last7.includes(e.date))
+    .reduce((s,e)=> s+(e.durationMin||0), 0);
+
   return {
     trainedDays: trainedDaysSet.size,
     volLast7: Math.round(volLast7),
     volPrev7: Math.round(volPrev7),
     proteinHitDays,
+    workoutMinLast7,
   };
 }
 
@@ -3200,6 +6513,7 @@ async function renderNutritionView(main){
     + '<div class="weekly-recap-row"><span>วันที่เทรน</span><b>'+recap.trainedDays+' / 7 วัน</b></div>'
     + '<div class="weekly-recap-row"><span>Volume รวม (เทียบ 7 วันก่อน)</span><b>'+recap.volLast7+volTrend+'</b></div>'
     + '<div class="weekly-recap-row"><span>วันที่กินโปรตีนครบเป้า</span><b>'+recap.proteinHitDays+' / 7 วัน</b></div>'
+    + '<div class="weekly-recap-row"><span>เวลาออกกำลังกายรวม</span><b>'+recap.workoutMinLast7+' นาที</b></div>'
     + '</div>'
     + '<div class="water-card">'
     + '<div class="water-row"><span class="weekly-recap-title" style="margin-bottom:0;">💧 น้ำดื่มวันนี้</span><span class="water-val">'+waterMl+' / 2500 ml</span></div>'
@@ -3527,7 +6841,7 @@ function addIngredientRow(prefill){
   const manual = prefill.manual || null;
   row.innerHTML =
     '<div class="ing-row-main">'
-    + '<input type="text" placeholder="ชื่อวัตถุดิบ เช่น อกไก่" class="ing-name" value="'+(prefill.name?escapeHtml(prefill.name):'')+'">'
+    + '<input type="text" placeholder="ชื่อวัตถุดิบ เช่น อกไก่" class="ing-name" value="'+(prefill.name?escapeHtml(prefill.name):'')+'" autocomplete="off">'
     + '<input type="number" inputmode="decimal" placeholder="ปริมาณ (ไม่รู้เว้นว่าง)" class="ing-weight" value="'+(prefill.weight?escapeHtml(String(prefill.weight)):'')+'">'
     + '<select class="ing-unit">'
     + '<option value="g"'+(unit==='g'?' selected':'')+'>g</option>'
@@ -3537,6 +6851,7 @@ function addIngredientRow(prefill){
     + '<button type="button" class="ing-fav-btn" title="บันทึกเป็นวัตถุดิบโปรด">☆</button>'
     + '<button class="ing-del">✕</button>'
     + '</div>'
+    + '<div class="food-suggest-dropdown" style="display:none;"></div>'
     + '<button type="button" class="ing-manual-toggle">'+(manual?'✓ ใส่สารอาหารจากฉลากแล้ว (แก้ไข)':'+ ใส่สารอาหารจากฉลาก (ถ้ารู้)')+'</button>'
     + '<div class="ing-manual-fields" style="display:'+(manual?'flex':'none')+';">'
     + '<div class="field-mini"><label>KCAL (auto)</label><input type="number" class="ing-m-kcal" value="'+(manual?manual.kcal:'')+'"></div>'
@@ -3578,8 +6893,55 @@ function addIngredientRow(prefill){
       if(mProteinInput.value !== '' || mCarbInput.value !== '' || mFatInput.value !== ''){
         mKcalInput.value = kcalFromMacros(mProteinInput.value, mCarbInput.value, mFatInput.value);
       }
+      row.dataset.db100 = ''; // manual edit breaks the DB link
     });
   });
+
+  // ---- Built-in food database search + auto-fill ----
+  const nameInput = row.querySelector('.ing-name');
+  const weightInput = row.querySelector('.ing-weight');
+  const dropdown = row.querySelector('.food-suggest-dropdown');
+
+  function applyDbScale(){
+    if(!row.dataset.db100) return;
+    const per100 = JSON.parse(row.dataset.db100);
+    const w = parseFloat(weightInput.value) || 100;
+    const factor = w / 100;
+    mKcalInput.value = Math.round(per100.kcal * factor);
+    mProteinInput.value = Math.round(per100.p * factor * 10)/10;
+    mCarbInput.value = Math.round(per100.c * factor * 10)/10;
+    mFatInput.value = Math.round(per100.f * factor * 10)/10;
+  }
+
+  nameInput.addEventListener('input', ()=>{
+    row.dataset.db100 = '';
+    const q = nameInput.value.trim().toLowerCase();
+    if(q.length < 2){ dropdown.style.display='none'; dropdown.innerHTML=''; return; }
+    const matches = FOOD_DATABASE.filter(f=> f.n.toLowerCase().includes(q)).slice(0,6);
+    if(!matches.length){ dropdown.style.display='none'; dropdown.innerHTML=''; return; }
+    dropdown.innerHTML = matches.map((f,i)=>
+      '<div class="food-suggest-item" data-idx="'+i+'"><span>'+escapeHtml(f.n)+'</span><span class="fs-kcal">'+f.kcal+' kcal/100g</span></div>'
+    ).join('');
+    dropdown.style.display = 'block';
+    dropdown.querySelectorAll('.food-suggest-item').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        const food = matches[parseInt(item.dataset.idx,10)];
+        nameInput.value = food.n;
+        row.dataset.db100 = JSON.stringify({kcal:food.kcal, p:food.p, c:food.c, f:food.f});
+        if(!weightInput.value) weightInput.value = 100;
+        fieldsDiv.style.display = 'flex';
+        toggleBtn.textContent = '✓ ใส่สารอาหารจากฉลากแล้ว (แก้ไข)';
+        applyDbScale();
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+      });
+    });
+  });
+  nameInput.addEventListener('blur', ()=>{
+    setTimeout(()=>{ dropdown.style.display='none'; }, 150);
+  });
+  weightInput.addEventListener('input', applyDbScale);
+
   container.appendChild(row);
 }
 document.getElementById('addIngBtn').addEventListener('click', ()=> addIngredientRow());
@@ -3932,7 +7294,7 @@ function getAllStorageKeys(){
   const keys = [];
   Object.keys(DATA).forEach(cat=> DATA[cat].forEach(ex=> keys.push('entries:' + slug(cat, ex.n))));
   Object.keys(PROGRAM2_DATA).forEach(cat=> PROGRAM2_DATA[cat].forEach(ex=> keys.push(storageId('p2', cat, ex.n))));
-  keys.push(RUN_KEY, FOOD_KEY, FAV_ING_KEY, WEIGHT_KEY, WATER_KEY, DAY_CONTEXT_KEY);
+  keys.push(RUN_KEY, FOOD_KEY, FAV_ING_KEY, WEIGHT_KEY, WATER_KEY, DAY_CONTEXT_KEY, WORKOUT_SESSION_KEY);
   return keys;
 }
 
